@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  View, TextInput, Button, Text, StyleSheet, TouchableOpacity 
-} from 'react-native';
-import { auth } from './firebase'; // Ensure the correct import path
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { auth } from './firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
@@ -20,13 +18,12 @@ export default function LoginScreen() {
 
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
-      navigation.navigate('Home'); // Navigate to Home screen after login
+      router.replace('/home'); // Redirect to home after login
     } catch (error) {
       setErrorMessage(getFirebaseErrorMessage(error.code));
     }
   };
 
-  // Function to convert Firebase error codes into readable messages
   const getFirebaseErrorMessage = (code) => {
     switch (code) {
       case 'auth/invalid-email':
@@ -44,16 +41,11 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      {/* ChronoWell Text at the Top Left */}
       <Text style={styles.logo}>ChronoWell</Text>
-
-      {/* Get Started Text */}
       <Text style={styles.title}>Get Started!</Text>
 
-      {/* Error Message */}
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
 
-      {/* Email Input */}
       <TextInput
         style={styles.input}
         value={email}
@@ -63,7 +55,6 @@ export default function LoginScreen() {
         autoCapitalize="none"
       />
 
-      {/* Password Input */}
       <TextInput
         style={styles.input}
         value={password}
@@ -72,23 +63,18 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
-      {/* Forgot Password */}
-      <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+      <TouchableOpacity onPress={() => router.push('/forgot-password')}>
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
 
-      {/* Login Button */}
       <Button title="Login" onPress={handleLogin} />
 
-      {/* Create Account Button */}
-      <TouchableOpacity onPress={() => navigation.navigate('CreateAccount')}>
+      <TouchableOpacity onPress={() => router.push('/create-account')}>
         <Text style={styles.createAccount}>Create an account</Text>
       </TouchableOpacity>
 
-      {/* OR Separator */}
       <Text style={styles.or}>──────── OR ────────</Text>
 
-      {/* Google Sign-In Button */}
       <TouchableOpacity style={styles.googleButton}>
         <Text style={styles.googleText}>Sign in with Google</Text>
       </TouchableOpacity>
