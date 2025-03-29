@@ -64,8 +64,10 @@ export default function LoginScreen() {
             value={email}
             onChangeText={setEmail}
             placeholder="Enter your email"
+            placeholderTextColor="#888" // Set placeholder text color
             keyboardType="email-address"
             autoCapitalize="none"
+            fontSize={15} // Set font size for placeholder
           />
         </View>
 
@@ -78,15 +80,17 @@ export default function LoginScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder="Enter your password"
+              placeholderTextColor="#888" // Set placeholder text color
               secureTextEntry={!passwordVisible} // Toggle password visibility
+              fontSize={15} // Set font size for placeholder
             />
+            {/* Eye Icon to toggle password visibility */}
             <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)} style={styles.eyeIconContainer}>
-            <MaterialIcons
-  name={passwordVisible ? 'visibility-off' : 'visibility'} // Material Design icons for eye
-  size={22}
-  color="#D3D3D3"  // Light gray color
-/>
-
+              <MaterialIcons
+                name={passwordVisible ? 'visibility-off' : 'visibility'} // Toggle between eye icons
+                size={22}
+                color="#808080" // Gray color for the eye icon
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -100,7 +104,8 @@ export default function LoginScreen() {
           <Text style={styles.loginText}>Login</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push('/create-account')}>
+        {/* Create an Account Button */}
+        <TouchableOpacity onPress={() => router.push('/CreateAccountScreen')}>
           <Text style={styles.createAccount}>Create an account</Text>
         </TouchableOpacity>
 
@@ -150,6 +155,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 5,
     backgroundColor: '#fff',
+    fontSize: 16, // Ensure font size is consistent for both input fields
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -169,15 +175,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   eyeIconContainer: {
-    padding: 10,
-    position: 'absolute',
-    right: 5, // Space the eye icon from the right edge
+    padding: 1,
   },
   forgotPassword: {
     color: '#fff',
     textAlign: 'right',
-    marginBottom: 10,
+    marginBottom: 20,
     width: '100%',
+    marginTop: -7,
   },
   createAccount: {
     color: '#fff',
