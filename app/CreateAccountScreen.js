@@ -43,7 +43,7 @@ export default function CreateAccountScreen() {
   return (
     <>
       {/* Set a custom title instead of "CreateAccountScreen" */}
-      <Stack.Screen options={{ title: '' }} />
+      <Stack.Screen options={{ title: "" }} />
 
       <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.container}>
         <Text style={styles.title}>Create Account</Text>
@@ -132,4 +132,3 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 });
-
