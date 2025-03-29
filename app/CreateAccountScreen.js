@@ -4,7 +4,6 @@ import { auth } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient
-import { Stack } from 'expo-router'; // Import Stack
 
 export default function CreateAccountScreen() {
   const [fullName, setFullName] = useState('');
@@ -41,55 +40,50 @@ export default function CreateAccountScreen() {
   };
 
   return (
-    <>
-      {/* Hide the header */}
-      <Stack.Screen options={{ headerShown: false }} />
+    <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.container}> {/* Apply gradient */}
+      <Text style={styles.title}>Create Account</Text>
 
-      <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.container}> {/* Apply gradient */}
-        <Text style={styles.title}>Create Account</Text>
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
 
-        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      {/* Full Name input with placeholder */}
+      <TextInput
+        style={styles.input}
+        value={fullName}
+        onChangeText={setFullName}
+        placeholder="Full Name"
+        placeholderTextColor="#D3D3D3" // Change placeholder text color to light gray
+      />
 
-        {/* Full Name input with placeholder */}
-        <TextInput
-          style={styles.input}
-          value={fullName}
-          onChangeText={setFullName}
-          placeholder="Full Name"
-          placeholderTextColor="#D3D3D3" // Change placeholder text color to light gray
-        />
+      {/* Email input with placeholder */}
+      <TextInput
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+        placeholder="Email Address"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        placeholderTextColor="#D3D3D3" // Change placeholder text color to light gray
+      />
 
-        {/* Email input with placeholder */}
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email Address"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholderTextColor="#D3D3D3" // Change placeholder text color to light gray
-        />
+      {/* Password input with placeholder */}
+      <TextInput
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Password"
+        secureTextEntry
+        placeholderTextColor="#D3D3D3" // Change placeholder text color to light gray
+      />
 
-        {/* Password input with placeholder */}
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          secureTextEntry
-          placeholderTextColor="#D3D3D3" // Change placeholder text color to light gray
-        />
+      {/* Updated button text to "Sign Up" */}
+      <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
 
-        {/* Updated button text to "Sign Up" */}
-        <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.replace('/login')}>
-          <Text style={styles.linkText}>Already have an account?</Text>
-        </TouchableOpacity>
-      </LinearGradient>
-    </>
+      <TouchableOpacity onPress={() => router.replace('/login')}>
+        <Text style={styles.linkText}>Already have an account?</Text>
+      </TouchableOpacity>
+    </LinearGradient>
   );
 }
 
@@ -132,7 +126,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 16,
-    marginTop: 30,
+    marginTop: 20,
     color: '#fff', 
   },
 });
