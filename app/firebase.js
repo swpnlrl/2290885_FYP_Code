@@ -1,25 +1,24 @@
-// /app/screens/firebase.js
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth'; // Import the authentication module
+import { getAnalytics } from 'firebase/analytics'; // Optional, if you want analytics
+// Add more imports for other Firebase features as needed
 
-// Import the necessary Firebase SDKs
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth"; // Import Firebase Authentication
-
-// Your Firebase configuration
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD63YM03m2psucNHmZ3OU6XAS8ANcmteJw",
-  authDomain: "chronowell-55835.firebaseapp.com",
-  projectId: "chronowell-55835",
-  storageBucket: "chronowell-55835.firebasestorage.app",
-  messagingSenderId: "705066025564",
-  appId: "1:705066025564:web:a85614f3680eecab28dc99",
-  measurementId: "G-9087Z3QX12"
+  apiKey: "AIzaSyCVl7Isqwnj0FM4xJ_GLztYy1RrZdEZOwo",
+  authDomain: "chronowell-a110d.firebaseapp.com",
+  projectId: "chronowell-a110d",
+  storageBucket: "chronowell-a110d.firebasestorage.app",
+  messagingSenderId: "176747721312",
+  appId: "1:176747721312:web:dcf1bc26d848e3ad194905",
+  measurementId: "G-ZNGSH80BBC"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication
-const auth = getAuth(app);
+// Initialize Firebase Authentication and Analytics (if needed)
+const auth = getAuth(app); // Firebase Authentication
+const analytics = getAnalytics(app); // Optional for analytics
 
-// Export the auth instance for use in your app
-export { auth };
+export { app, auth, analytics }; // Export them to use in other parts of your app
