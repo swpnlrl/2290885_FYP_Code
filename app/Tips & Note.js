@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
+
 // Example: A much larger list of tips for university students
 const tipsData = [
   { id: 1, title: "Time Management", description: "Prioritize tasks using a to-do list and break tasks into smaller chunks." },
