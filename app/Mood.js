@@ -59,12 +59,19 @@ export default function MoodScreen() {
   };
 
   const calculateAverages = () => {
-    if (moodLogs.length === 0) return { avgMood: 0, avgStress: 0 };
+    if (moodLogs.length === 0) return { avgMood: 0, avgStress: 0, avgStudyHours: 0, avgSleepHours: 0 };
 
     const totalMood = moodLogs.reduce((sum, log) => sum + log.mood, 0);
     const totalStress = moodLogs.reduce((sum, log) => sum + log.stress, 0);
+    const totalStudyHours = moodLogs.reduce((sum, log) => sum + log.studyHours, 0);
+    const totalSleepHours = moodLogs.reduce((sum, log) => sum + log.sleepHours, 0);
 
-    return { avgMood: totalMood / moodLogs.length, avgStress: totalStress / moodLogs.length };
+    return {
+      avgMood: totalMood / moodLogs.length,
+      avgStress: totalStress / moodLogs.length,
+      avgStudyHours: totalStudyHours / moodLogs.length,
+      avgSleepHours: totalSleepHours / moodLogs.length,
+    };
   };
 
   const renderMoodLogs = () => {
@@ -91,7 +98,7 @@ export default function MoodScreen() {
     }
   };
 
-  const { avgMood, avgStress } = calculateAverages();
+  const { avgMood, avgStress, avgStudyHours, avgSleepHours } = calculateAverages();
 
   return (
     <ScrollView style={styles.container}>
@@ -146,6 +153,8 @@ export default function MoodScreen() {
       <View style={styles.averageContainer}>
         <Text style={styles.averageText}>Average Mood: {avgMood.toFixed(1)}</Text>
         <Text style={styles.averageText}>Average Stress: {avgStress.toFixed(1)}</Text>
+        <Text style={styles.averageText}>Average Study Hours: {avgStudyHours.toFixed(1)}</Text>
+        <Text style={styles.averageText}>Average Sleep Hours: {avgSleepHours.toFixed(1)}</Text>
       </View>
 
       <View style={styles.insightsContainer}>
@@ -254,4 +263,3 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 });
-
