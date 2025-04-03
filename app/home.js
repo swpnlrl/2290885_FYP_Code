@@ -3,20 +3,25 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native'; // <-- Import useNavigation
 import { auth } from './firebase';
 
 export default function HomeScreen() {
+  const navigation = useNavigation(); // <-- Use useNavigation hook
   const router = useRouter();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Hide the header when the screen is mounted
+    navigation.setOptions({ headerShown: false });
+
     // Check if the user is logged in
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
     });
 
     return () => unsubscribe(); // Cleanup subscription
-  }, []);
+  }, [navigation]);
 
   const handleProfileClick = () => {
     // Navigate to profile screen using Expo Router
@@ -49,11 +54,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-// Disable the header in Expo Router by adding this line
-HomeScreen.options = {
-  headerShown: false,
-};
 
 const styles = StyleSheet.create({
   container: {
