@@ -158,7 +158,7 @@ export default function MoodScreen() {
       </View>
 
       <View style={styles.insightsContainer}>
-        <Text style={styles.insightTitle}>Insights</Text>
+        <Text style={styles.insightTitle}>Note</Text>
         <Text style={styles.insightText}>
           {avgMood >= 7 && avgStress <= 3 ? 'You are feeling good! Keep up the positive habits!' : 
            avgMood <= 4 && avgStress >= 7 ? 'It seems you’re feeling stressed. Consider managing your study time or sleep better.' :

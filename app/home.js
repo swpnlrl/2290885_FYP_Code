@@ -26,7 +26,7 @@ export default function HomeScreen() {
   };
 
   const handlemoodClick = () => {
-    router.push('/Mood');
+    router.push('/Insights');
   };
 
   // Use this function to handle the button press and navigate to the Todo screen
@@ -58,7 +58,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        {['Log Food', 'To-Do List', 'Reminder', 'Timer', 'Mood Insights', 'Tips', 'Meditation & Deep Breathing'].map((text, index) => (
+        {['Log Food', 'To-Do List', 'Reminder', 'Timer', 'Insights', 'Tips', 'Meditation & Deep Breathing'].map((text, index) => (
           <TouchableOpacity
             key={index}
             style={[styles.button, index === 0 ? styles.firstButton : null]}
@@ -76,7 +76,7 @@ export default function HomeScreen() {
     handletimeClick(); // This will navigate to the Todo screen
   }
 
-  if (text === 'Mood Insights') {
+  if (text === 'Insights') {
     handlemoodClick(); // This will navigate to the Todo screen
   }
 
