@@ -1,9 +1,8 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth'; // Updated imports
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { getReactNativePersistence } from 'firebase/auth'; // Import correct persistence function
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth'; // Update: Use initializeAuth
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure you have this import
 
-// Your web app's Firebase configuration
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCVl7Isqwnj0FM4xJ_GLztYy1RrZdEZOwo",
   authDomain: "chronowell-a110d.firebaseapp.com",
@@ -17,16 +16,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication
-const auth = getAuth(app);
+// Initialize Firebase Auth with persistence using AsyncStorage
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage) // Correct way to set persistence
+});
 
-// Set persistence with correct AsyncStorage
-setPersistence(auth, getReactNativePersistence(AsyncStorage)) // This should fix persistence issues
-  .then(() => {
-    // Persistence set successfully
-  })
-  .catch((error) => {
-    console.error("Error setting persistence: ", error);
-  });
-
-export { app, auth }; // Export them to use in other parts of your app
+export { app, auth };
