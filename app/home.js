@@ -1,29 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useNavigation } from '@react-navigation/native'; 
+import { useRouter } from 'expo-router'; // Only use this for navigation
 import { auth } from './firebase'; 
+import { useNavigation } from '@react-navigation/native'; 
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
-  const router = useRouter();
+  const router = useRouter(); // Using useRouter for navigation
   const [user, setUser] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
-    navigation.setOptions({ headerShown: false });
 
+    navigation.setOptions({ headerShown: false });
     // Check if the user is logged in
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
     });
 
     return () => unsubscribe(); // Cleanup subscription
-  }, [navigation]);
+  }, []);
 
   const handleProfileClick = () => {
     router.push('/profile');
+  };
+
+  // Use this function to handle the button press and navigate to the Todo screen
+  const handleTodoClick = () => {
+    router.push('/todo');  // Route to the todo.js page
   };
 
   return (
@@ -47,7 +51,12 @@ export default function HomeScreen() {
             key={index}
             style={[styles.button, index === 0 ? styles.firstButton : null]}
             activeOpacity={0.7}
-            onPress={() => { /* handle button click */ }}
+            onPress={() => {
+              if (text === 'To-Do List') {
+                handleTodoClick(); // This will navigate to the Todo screen
+              }
+              // handle other button clicks here
+            }}
           >
             <LinearGradient colors={['#9B4D97', '#6A0DAD']} style={styles.buttonGradient}>
               <Text style={styles.buttonText}>{text}</Text>
