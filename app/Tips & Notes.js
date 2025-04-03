@@ -56,9 +56,16 @@ const tipsData = [
   { id: 50, title: "Practice Self-Compassion", description: "Be kind to yourself when you make mistakes or fall behind. Growth is a process." },
 ];
 
-const Tips = () => {
+const TipsAndNotes = () => {
   return (
     <View style={styles.container}>
+      {/* Notes Section */}
+      <View style={styles.notesSection}>
+        <Text style={styles.notesTitle}>Notes</Text>
+        <Text style={styles.notesDescription}>Use this section to jot down important points, reminders, or anything else you want to remember!</Text>
+      </View>
+
+      {/* Tips Section */}
       <ScrollView style={styles.tipsContainer}>
         {tipsData.map((tip) => (
           <TouchableOpacity key={tip.id} style={styles.tipCard}>
@@ -82,6 +89,20 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: 'white',
+  },
+  notesSection: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  notesTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  notesDescription: {
+    fontSize: 16,
+    color: '#555',
+    marginTop: 10,
   },
   tipsContainer: {
     width: '100%',
@@ -112,4 +133,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Tips;
+export default TipsAndNotes;
