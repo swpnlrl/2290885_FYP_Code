@@ -30,6 +30,10 @@ export default function HomeScreen() {
     router.push('/To-Do List');  // Route to the todo.js page
   };
 
+  const handleRemClick = () => {
+    router.push('/Reminder');  // Route to the todo.js page
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -55,6 +59,11 @@ export default function HomeScreen() {
               if (text === 'To-Do List') {
                 handleTodoClick(); // This will navigate to the Todo screen
               }
+
+              if (text === 'Reminder') {
+                handleRemClick(); // This will navigate to the Todo screen
+              }
+
               // handle other button clicks here
             }}
           >
