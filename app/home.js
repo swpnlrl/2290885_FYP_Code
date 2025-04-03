@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useNavigation } from '@react-navigation/native'; // <-- Import useNavigation
-import { auth } from './firebase';
+import { useNavigation } from '@react-navigation/native'; 
+import { auth } from './firebase'; 
 
 export default function HomeScreen() {
-  const navigation = useNavigation(); // <-- Use useNavigation hook
+  const navigation = useNavigation();
   const router = useRouter();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Hide the header when the screen is mounted
     navigation.setOptions({ headerShown: false });
 
     // Check if the user is logged in
@@ -24,16 +23,21 @@ export default function HomeScreen() {
   }, [navigation]);
 
   const handleProfileClick = () => {
-    // Navigate to profile screen using Expo Router
     router.push('/profile');
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
+        {/* Display "ChronoWell" title */}
         <Text style={styles.title}>ChronoWell</Text>
+
+        {/* Display Profile Icon */}
         <TouchableOpacity onPress={handleProfileClick}>
-          <Ionicons name="person-circle-outline" size={32} color="black" />
+          <Image
+            source={require('/Users/swapnilaryal/FYPCode/ChronoWell/assets/images/profile-icon.png')} // Path to your image
+            style={styles.profileIcon}
+          />
         </TouchableOpacity>
       </View>
       <View style={styles.divider} />
@@ -77,6 +81,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#6A0DAD',
+  },
+  profileIcon: {
+    width: 50, // Set the size of the profile icon
+    height: 50, // Set the size of the profile icon
+    borderRadius: 25, // Make it a circular image
   },
   divider: {
     height: 1,
