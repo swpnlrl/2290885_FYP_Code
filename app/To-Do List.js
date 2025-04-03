@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { sendEmail } from './emailService'; // Function to send emails (implement this separately)
 
 export default function TodoScreen() {
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState('');
   const [priority, setPriority] = useState('Medium'); // Default priority
   const [filter, setFilter] = useState('All'); // For filtering tasks
+  const [emailReminders, setEmailReminders] = useState(false); // State for email reminders toggle
 
   // Load tasks from AsyncStorage when the component mounts
   useEffect(() => {
@@ -78,6 +80,25 @@ export default function TodoScreen() {
     return priorityOrder[a.priority] - priorityOrder[b.priority];
   });
 
+  // Function to send email reminder
+  const sendEmailReminder = () => {
+    if (tasks.length > 0) {
+      const emailBody = `This is a reminder for you to stay on track. There are ${tasks.length} tasks to do.`;
+      sendEmail(emailBody); // Assume this is implemented elsewhere to send the email
+    }
+  };
+
+  // Set up email reminder interval if enabled
+  useEffect(() => {
+    let interval;
+    if (emailReminders) {
+      interval = setInterval(sendEmailReminder, 5 * 1000); // 6 hours
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, [emailReminders]);
+
   return (
     <View style={styles.container}>
       {/* Task Input */}
@@ -87,7 +108,7 @@ export default function TodoScreen() {
         value={taskName}
         onChangeText={setTaskName}
       />
-      
+
       {/* Task Priority Selector */}
       <View style={styles.priorityBox}>
         <Text style={styles.priorityBoxTitle}>Priority</Text>
@@ -125,6 +146,15 @@ export default function TodoScreen() {
             </TouchableOpacity>
           ))}
         </View>
+      </View>
+
+      {/* Email Reminders Toggle */}
+      <View style={styles.reminderToggleContainer}>
+        <Text style={styles.reminderToggleText}>Email Reminders every 6 hours</Text>
+        <Switch
+          value={emailReminders}
+          onValueChange={setEmailReminders}
+        />
       </View>
 
       {/* Task List */}
@@ -254,6 +284,16 @@ const styles = StyleSheet.create({
   filterText: {
     color: '#333',
     fontSize: 16,
+  },
+  reminderToggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  reminderToggleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   taskItem: {
     marginBottom: 10,
