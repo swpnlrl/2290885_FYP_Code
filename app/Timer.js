@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Vibration, Platform, TextInput, Modal, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Audio } from 'expo-av'; // For playing sound
 
@@ -7,44 +7,61 @@ export default function Timer() {
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [intervalId, setIntervalId] = useState(null);
   const [sound, setSound] = useState();
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false); // For modal visibility
   const [alarmEndModalVisible, setAlarmEndModalVisible] = useState(false); // Modal to stop music after timer ends
+
+  // Using refs to track timer state
+  const hoursRef = useRef(hours);
+  const minutesRef = useRef(minutes);
+  const secondsRef = useRef(seconds);
+
+  // Sync refs with state
+  useEffect(() => {
+    hoursRef.current = hours;
+    minutesRef.current = minutes;
+    secondsRef.current = seconds;
+  }, [hours, minutes, seconds]);
 
   // Handle Timer actions
   useEffect(() => {
-    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    const totalSeconds = hoursRef.current * 3600 + minutesRef.current * 60 + secondsRef.current;
 
     if (isRunning && totalSeconds > 0) {
       const id = setInterval(() => {
         setSeconds((prevSeconds) => {
-          if (prevSeconds === 0 && minutes === 0 && hours === 0) {
+          let newSeconds = prevSeconds - 1;
+
+          if (newSeconds < 0) {
+            newSeconds = 59;
+            setMinutes((prevMinutes) => {
+              let newMinutes = prevMinutes - 1;
+
+              if (newMinutes < 0) {
+                newMinutes = 59;
+                setHours((prevHours) => prevHours - 1);
+              }
+
+              return newMinutes;
+            });
+          }
+
+          if (hoursRef.current === 0 && minutesRef.current === 0 && newSeconds === 0) {
             clearInterval(id);
             handleEndSound(); // Play sound when timer ends
-            return 0;
           }
-          return prevSeconds - 1;
+
+          return newSeconds;
         });
-        if (seconds === 0 && minutes === 0 && hours > 0) {
-          setHours(hours - 1);
-          setMinutes(59);
-          setSeconds(59);
-        } else if (seconds === 0 && minutes > 0) {
-          setMinutes(minutes - 1);
-          setSeconds(59);
-        }
       }, 1000);
-      setIntervalId(id);
-    } else if (!isRunning && intervalId) {
-      clearInterval(intervalId);
+      
+      return () => clearInterval(id); // Cleanup interval on unmount
+    } else if (!isRunning) {
+      clearInterval();
     }
 
-    return () => {
-      if (intervalId) clearInterval(intervalId); // Cleanup on unmount
-    };
-  }, [isRunning, hours, minutes, seconds]);
+    return () => clearInterval();
+  }, [isRunning]);
 
   const handleStartPause = () => {
     setIsRunning(!isRunning);
@@ -134,11 +151,9 @@ export default function Timer() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           {/* Timer Display */}
-          <Text style={[styles.timerText, (isRunning && seconds < 5) && styles.timerWarning]}>
-  {formatTime(hours, minutes, seconds)}
-</Text>
-
-
+          <Text style={[styles.timerText, (isRunning && seconds < 6) && styles.timerWarning]}>
+            {formatTime(hours, minutes, seconds)}
+          </Text>
 
           {/* Control Buttons */}
           <View style={styles.buttonsContainer}>
@@ -208,7 +223,6 @@ export default function Timer() {
             >
               <View style={styles.modalOverlay}>
                 <View style={styles.modalContent}>
-                  <Text style={styles.modalText}>Timer ended</Text>
                   <TouchableOpacity onPress={stopSound} style={styles.stopButton}>
                     <Text style={styles.stopButtonText}>Stop Music</Text>
                   </TouchableOpacity>
