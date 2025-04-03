@@ -22,12 +22,16 @@ export default function HomeScreen() {
   }, []);
 
   const handleProfileClick = () => {
-    router.push('/profile');
+    router.push('/Profile');
   };
 
   // Use this function to handle the button press and navigate to the Todo screen
   const handleTodoClick = () => {
     router.push('/To-Do List');  // Route to the todo.js page
+  };
+
+  const handletimeClick = () => {
+    router.push('/Timer');  // Route to the todo.js page
   };
 
   const handleRemClick = () => {
@@ -63,6 +67,11 @@ export default function HomeScreen() {
               if (text === 'Reminder') {
                 handleRemClick(); // This will navigate to the Todo screen
               }
+       
+  if (text === 'Timer') {
+    handletimeClick(); // This will navigate to the Todo screen
+  }
+
 
               // handle other button clicks here
             }}
