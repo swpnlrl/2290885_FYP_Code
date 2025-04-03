@@ -20,6 +20,7 @@ export default function HomeScreen() {
   }, []);
 
   const handleProfileClick = () => {
+    // Navigate to profile screen using Expo Router
     router.push('/profile');
   };
 
