@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, initializeAuth } from 'firebase/auth'; // Import auth and initializeAuth
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth'; // Updated imports
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { getReactNativePersistence } from 'firebase/auth'; // Get persistence method
+import { getReactNativePersistence } from 'firebase/auth'; // Import correct persistence function
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,9 +17,16 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication with persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage) // Ensure persistence with AsyncStorage
-});
+// Initialize Firebase Authentication
+const auth = getAuth(app);
+
+// Set persistence with correct AsyncStorage
+setPersistence(auth, getReactNativePersistence(AsyncStorage)) // This should fix persistence issues
+  .then(() => {
+    // Persistence set successfully
+  })
+  .catch((error) => {
+    console.error("Error setting persistence: ", error);
+  });
 
 export { app, auth }; // Export them to use in other parts of your app
