@@ -1,12 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 export default function TodoScreen() {
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState('');
   const [priority, setPriority] = useState('Medium'); // Default priority
   const [filter, setFilter] = useState('All'); // For filtering tasks
+
+  // Load tasks from AsyncStorage when the component mounts
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const storedTasks = await AsyncStorage.getItem('tasks');
+        if (storedTasks) {
+          setTasks(JSON.parse(storedTasks)); // Set tasks from AsyncStorage
+        }
+      } catch (error) {
+        console.error('Failed to load tasks from AsyncStorage', error);
+      }
+    };
+
+    loadTasks();
+  }, []);
+
+  // Save tasks to AsyncStorage whenever tasks change
+  useEffect(() => {
+    const saveTasks = async () => {
+      try {
+        await AsyncStorage.setItem('tasks', JSON.stringify(tasks)); // Save tasks to AsyncStorage
+      } catch (error) {
+        console.error('Failed to save tasks to AsyncStorage', error);
+      }
+    };
+
+    saveTasks();
+  }, [tasks]); // Only run when tasks state changes
 
   // Handle adding a new task
   const handleAddTask = () => {
