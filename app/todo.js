@@ -44,8 +44,6 @@ export default function TodoScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>To-Do List</Text>
-
       {/* Task Input */}
       <TextInput
         style={styles.input}
@@ -62,7 +60,7 @@ export default function TodoScreen() {
             style={[styles.priorityButton, priority === level && styles.selectedPriority]}
             onPress={() => setPriority(level)}
           >
-            <Text style={styles.priorityText}>{level}</Text>
+            <Text style={[styles.priorityText, priority === level && styles.selectedPriorityText]}>{level}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -82,7 +80,7 @@ export default function TodoScreen() {
             style={[styles.filterButton, filter === level && styles.selectedFilter]}
             onPress={() => setFilter(level)}
           >
-            <Text style={styles.filterText}>{level}</Text>
+            <Text style={[styles.filterText, filter === level && styles.selectedFilterText]}>{level}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -92,16 +90,18 @@ export default function TodoScreen() {
         data={filteredTasks}
         renderItem={({ item }) => (
           <View style={styles.taskItem}>
-            <Text style={[styles.taskText, item.completed && styles.completedTask]}>
-              {item.name} (Priority: {item.priority})
-            </Text>
-            <View style={styles.taskActions}>
-              <TouchableOpacity onPress={() => handleCompleteTask(item.id)}>
-                <Text style={styles.actionText}>{item.completed ? 'Undo' : 'Complete'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-                <Text style={styles.actionText}>Delete</Text>
-              </TouchableOpacity>
+            <View style={[styles.taskCard, item.completed && styles.completedTaskCard]}>
+              <Text style={[styles.taskText, item.completed && styles.completedTask]}>
+                {item.name} (Priority: {item.priority})
+              </Text>
+              <View style={styles.taskActions}>
+                <TouchableOpacity onPress={() => handleCompleteTask(item.id)}>
+                  <Text style={styles.actionText}>{item.completed ? 'Undo' : 'Complete'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
+                  <Text style={styles.actionText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         )}
@@ -115,39 +115,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#6A0DAD',
-    marginBottom: 20,
+    backgroundColor: '#f9f9f9',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
+    borderColor: '#ddd',
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    marginBottom: 12,
+    fontSize: 16,
   },
   priorityContainer: {
     flexDirection: 'row',
-    marginBottom: 10,
+    marginBottom: 15,
     justifyContent: 'space-between',
   },
   priorityButton: {
-    padding: 10,
+    padding: 12,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     margin: 5,
+    backgroundColor: '#fff',
   },
   selectedPriority: {
-    backgroundColor: '#6A0DAD',
-    borderColor: '#6A0DAD',
+    backgroundColor: '#6A0DAD', // Purple
+    borderColor: '#6A0DAD', // Purple
+  },
+  selectedPriorityText: {
+    color: '#fff', // White text for selected priority
   },
   priorityText: {
-    color: '#6A0DAD',
+    color: '#333',
+    fontSize: 16,
   },
   addButton: {
     marginTop: 20,
@@ -167,6 +168,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginVertical: 10,
   },
@@ -174,23 +176,34 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     margin: 5,
+    backgroundColor: '#fff',
   },
   selectedFilter: {
-    backgroundColor: '#6A0DAD',
-    borderColor: '#6A0DAD',
+    backgroundColor: '#6A0DAD', // Purple
+    borderColor: '#6A0DAD', // Purple
+  },
+  selectedFilterText: {
+    color: '#fff', // White text for selected filter
   },
   filterText: {
-    color: '#6A0DAD',
+    color: '#333',
+    fontSize: 16,
   },
   taskItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingVertical: 10,
+    marginBottom: 10,
+  },
+  taskCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 10,
+  },
+  completedTaskCard: {
+    backgroundColor: '#f0f0f0',
   },
   taskText: {
     fontSize: 16,
@@ -198,14 +211,16 @@ const styles = StyleSheet.create({
   },
   completedTask: {
     textDecorationLine: 'line-through',
-    color: '#999',
+    color: '#888',
   },
   taskActions: {
     flexDirection: 'row',
+    marginTop: 10,
   },
   actionText: {
     marginLeft: 15,
-    color: '#6A0DAD',
+    color: '#6A0DAD', // Purple
     fontWeight: 'bold',
+    fontSize: 14,
   },
 });
