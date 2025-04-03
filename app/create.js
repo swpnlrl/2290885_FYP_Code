@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { auth } from './firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Stack } from 'expo-router'; // Import Stack for navigation control
+import { Stack } from 'expo-router';
 
 export default function CreateAccountScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleCreateAccount = async () => {
@@ -19,10 +20,28 @@ export default function CreateAccountScreen() {
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      await createUserWithEmailAndPassword(auth, email.trim(), password);
-      router.replace('/home');
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+
+      setIsLoading(false);
+      setErrorMessage('A verification email has been sent. Please verify your email before logging in.');
+
+      // Show alert after email is sent
+      Alert.alert(
+        'Email Verification',
+        'A verification email has been sent to your address. Please verify your email before logging in.',
+        [
+          { text: 'OK', onPress: () => router.replace('/login') }
+        ]
+      );
+
     } catch (error) {
+      setIsLoading(false);
       setErrorMessage(getFirebaseErrorMessage(error.code));
     }
   };
@@ -42,9 +61,7 @@ export default function CreateAccountScreen() {
 
   return (
     <>
-      {/* Set a custom title instead of "CreateAccountScreen" */}
       <Stack.Screen options={{ title: "" }} />
-
       <LinearGradient colors={['#8A2BE2', '#4B0082']} style={styles.container}>
         <Text style={styles.title}>Create Account</Text>
 
@@ -77,8 +94,8 @@ export default function CreateAccountScreen() {
           placeholderTextColor="#D3D3D3"
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleCreateAccount}>
-          <Text style={styles.buttonText}>Sign Up</Text>
+        <TouchableOpacity style={styles.button} onPress={handleCreateAccount} disabled={isLoading}>
+          <Text style={styles.buttonText}>{isLoading ? 'Signing Up...' : 'Sign Up'}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.replace('/login')}>

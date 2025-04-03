@@ -9,7 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.swpnlrl.ChronoWell",
+      "authentication": {
+        "google": {
+          "clientId": "176747721312-b9p6m343eb5vmf48ppat0792777v79f9.apps.googleusercontent.com",
+          "iosClientId": "176747721312-b9p6m343eb5vmf48ppat0792777v79f9.apps.googleusercontent.com",
+          "redirectUri": "https://auth.expo.io/@swpnlrl/ChronoWell"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {

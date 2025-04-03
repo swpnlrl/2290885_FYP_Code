@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { auth } from './firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential, sendPasswordResetEmail } from 'firebase/auth';
 import { useRouter, useNavigation } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -20,7 +20,8 @@ export default function LoginScreen() {
   }, [navigation]);
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+    clientId: '176747721312-af3mtfq800sn6g4ad4hdo67rg0622k3e.apps.googleusercontent.com',
+    iosClientId: '176747721312-b9p6m343eb5vmf48ppat0792777v79f9.apps.googleusercontent.com',
   });
 
   useEffect(() => {
@@ -41,6 +42,23 @@ export default function LoginScreen() {
     try {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       router.replace('/home');
+    } catch (error) {
+      setErrorMessage(getFirebaseErrorMessage(error.code));
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setErrorMessage('Please enter your email to reset password.');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      Alert.alert(
+        'Password Reset',
+        'A password reset link has been sent to your email. Please check your inbox.',
+        [{ text: 'OK', onPress: () => setErrorMessage('') }]
+      );
     } catch (error) {
       setErrorMessage(getFirebaseErrorMessage(error.code));
     }
@@ -91,7 +109,7 @@ export default function LoginScreen() {
         </View>
       </View>
 
-      <TouchableOpacity onPress={() => router.push('/forgot-password')}>
+      <TouchableOpacity onPress={handleForgotPassword}>
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
 
@@ -99,7 +117,7 @@ export default function LoginScreen() {
         <Text style={styles.loginText}>Login</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push('/CreateAccountScreen')}>
+      <TouchableOpacity onPress={() => router.push('/create')}>
         <Text style={styles.createAccount}>Create an account</Text>
       </TouchableOpacity>
 
@@ -130,4 +148,5 @@ const styles = StyleSheet.create({
   googleButton: { backgroundColor: '#DB4437', paddingVertical: 15, borderRadius: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   googleImage: { width: 24, height: 24, marginRight: 10 },
   googleText: { color: 'white', fontSize: 16 },
+  error: { color: 'red', textAlign: 'center', marginBottom: 10 },
 });

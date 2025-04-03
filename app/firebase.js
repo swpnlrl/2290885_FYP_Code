@@ -1,7 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth'; // Import the authentication module
-import { getAnalytics } from 'firebase/analytics'; // Optional, if you want analytics
-// Add more imports for other Firebase features as needed
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,8 +15,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and Analytics (if needed)
+// Initialize Firebase Authentication
 const auth = getAuth(app); // Firebase Authentication
-const analytics = getAnalytics(app); // Optional for analytics
 
-export { app, auth, analytics }; // Export them to use in other parts of your app
+export { app, auth }; // Export them to use in other parts of your app
