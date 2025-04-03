@@ -25,6 +25,10 @@ export default function HomeScreen() {
     router.push('/Profile');
   };
 
+  const handletipClick = () => {
+    router.push('/Tips');
+  };
+
   const handlemoodClick = () => {
     router.push('/Insights');
   };
@@ -79,6 +83,11 @@ export default function HomeScreen() {
   if (text === 'Insights') {
     handlemoodClick(); // This will navigate to the Todo screen
   }
+
+  if (text === 'Tips') {
+    handletipClick(); // This will navigate to the Todo screen
+  }
+
 
 
               // handle other button clicks here
