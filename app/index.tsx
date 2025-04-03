@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { auth } from './firebase';
- // Move up one level
- // Adjust if firebase is outside /app
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 
@@ -22,17 +20,24 @@ export default function Index() {
 
   useEffect(() => {
     if (!loading) {
-      router.replace(user ? '/home' : '/login');
+      if (user) {
+        // Redirect to home if user is logged in
+        router.replace('/home');
+      } else {
+        // Redirect to login if user is not logged in
+        router.replace('/login');
+      }
     }
   }, [loading, user, router]);
 
   if (loading) {
     return (
-      <View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#6A0DAD" />
         <Text>Loading...</Text>
       </View>
     );
   }
 
-  return null; // Redirection happens here
+  return null; // No rendering while checking auth state
 }
