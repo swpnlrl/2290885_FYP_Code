@@ -25,6 +25,10 @@ export default function HomeScreen() {
     router.push('/Profile');
   };
 
+  const handlemoodClick = () => {
+    router.push('/Mood');
+  };
+
   // Use this function to handle the button press and navigate to the Todo screen
   const handleTodoClick = () => {
     router.push('/To-Do List');  // Route to the todo.js page
@@ -70,6 +74,10 @@ export default function HomeScreen() {
        
   if (text === 'Timer') {
     handletimeClick(); // This will navigate to the Todo screen
+  }
+
+  if (text === 'Mood Insights') {
+    handlemoodClick(); // This will navigate to the Todo screen
   }
 
 

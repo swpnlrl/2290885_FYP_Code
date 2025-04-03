@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Vibration, Platform, TextInput, Modal, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Audio } from 'expo-av'; // For playing sound
+import { Audio } from 'expo-av'; // Import for handling audio
+import { Asset } from 'expo-asset'; // For loading assets
 
 export default function Timer() {
   const [hours, setHours] = useState(1); // Default hour
@@ -79,10 +80,8 @@ export default function Timer() {
   const handleEndSound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(
-        require('../assets/alarm1.mp3'), // Ensure this path is correct
-        {
-          shouldPlay: true,
-        }
+        require('./assets/alarm1.mp3'), // Directly require the sound file
+        { shouldPlay: true }
       );
       setSound(sound);
       await sound.playAsync(); // Play sound
