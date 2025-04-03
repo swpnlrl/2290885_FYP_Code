@@ -134,9 +134,11 @@ export default function Timer() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           {/* Timer Display */}
-          <Text style={[styles.timerText, seconds <= 10 && styles.timerWarning]}>
-            {formatTime(hours, minutes, seconds)}
-          </Text>
+          <Text style={[styles.timerText, (isRunning && seconds < 5) && styles.timerWarning]}>
+  {formatTime(hours, minutes, seconds)}
+</Text>
+
+
 
           {/* Control Buttons */}
           <View style={styles.buttonsContainer}>
