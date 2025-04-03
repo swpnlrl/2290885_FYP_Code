@@ -42,6 +42,12 @@ export default function TodoScreen() {
     return task.priority === filter;
   });
 
+  // Sort tasks based on priority: High -> Medium -> Low
+  const sortedTasks = filteredTasks.sort((a, b) => {
+    const priorityOrder = { High: 0, Medium: 1, Low: 2 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+
   return (
     <View style={styles.container}>
       {/* Task Input */}
@@ -53,16 +59,19 @@ export default function TodoScreen() {
       />
       
       {/* Task Priority Selector */}
-      <View style={styles.priorityContainer}>
-        {['High', 'Medium', 'Low'].map((level) => (
-          <TouchableOpacity
-            key={level}
-            style={[styles.priorityButton, priority === level && styles.selectedPriority]}
-            onPress={() => setPriority(level)}
-          >
-            <Text style={[styles.priorityText, priority === level && styles.selectedPriorityText]}>{level}</Text>
-          </TouchableOpacity>
-        ))}
+      <View style={styles.priorityBox}>
+        <Text style={styles.priorityBoxTitle}>Priority</Text>
+        <View style={styles.priorityContainer}>
+          {['High', 'Medium', 'Low'].map((level) => (
+            <TouchableOpacity
+              key={level}
+              style={[styles.priorityButton, priority === level && styles.selectedPriority]}
+              onPress={() => setPriority(level)}
+            >
+              <Text style={[styles.priorityText, priority === level && styles.selectedPriorityText]}>{level}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {/* Add Task Button */}
@@ -73,21 +82,24 @@ export default function TodoScreen() {
       </TouchableOpacity>
 
       {/* Filter Tasks */}
-      <View style={styles.filterContainer}>
-        {['All', 'Completed', 'Pending', 'High', 'Medium', 'Low'].map((level) => (
-          <TouchableOpacity
-            key={level}
-            style={[styles.filterButton, filter === level && styles.selectedFilter]}
-            onPress={() => setFilter(level)}
-          >
-            <Text style={[styles.filterText, filter === level && styles.selectedFilterText]}>{level}</Text>
-          </TouchableOpacity>
-        ))}
+      <View style={styles.filterBox}>
+        <Text style={styles.filterBoxTitle}>Filter</Text>
+        <View style={styles.filterContainer}>
+          {['All', 'Completed', 'Pending', 'High', 'Medium', 'Low'].map((level) => (
+            <TouchableOpacity
+              key={level}
+              style={[styles.filterButton, filter === level && styles.selectedFilter]}
+              onPress={() => setFilter(level)}
+            >
+              <Text style={[styles.filterText, filter === level && styles.selectedFilterText]}>{level}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {/* Task List */}
       <FlatList
-        data={filteredTasks}
+        data={sortedTasks}
         renderItem={({ item }) => (
           <View style={styles.taskItem}>
             <View style={[styles.taskCard, item.completed && styles.completedTaskCard]}>
@@ -126,9 +138,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontSize: 16,
   },
+  priorityBox: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+  },
+  priorityBoxTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
   priorityContainer: {
     flexDirection: 'row',
-    marginBottom: 15,
     justifyContent: 'space-between',
   },
   priorityButton: {
@@ -166,11 +189,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  filterBox: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+  },
+  filterBoxTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
   filterContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginVertical: 10,
   },
   filterButton: {
     padding: 10,
