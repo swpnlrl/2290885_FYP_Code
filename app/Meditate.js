@@ -35,6 +35,7 @@ export default function Meditate() {
   const renderTimer = () => {
     return (
       <CountdownCircleTimer
+        key={totalSeconds}  // Add the key here to reset the timer component
         isPlaying={isRunning}
         duration={totalSeconds}
         colors={isRunning ? "#00E676" : "#D3D3D3"} // Grey color when not running
