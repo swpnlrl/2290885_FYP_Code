@@ -26,7 +26,10 @@ export default function Meditate() {
 
   const resetTimer = () => {
     setIsRunning(false);
-    setTotalSeconds(0);
+    setHrs('00');
+    setMin('00');
+    setSec('00');
+    setTotalSeconds(0); // Reset totalSeconds explicitly to 0
   };
 
   const renderTimer = () => {
@@ -34,7 +37,7 @@ export default function Meditate() {
       <CountdownCircleTimer
         isPlaying={isRunning}
         duration={totalSeconds}
-        colors="#00E676"
+        colors={isRunning ? "#00E676" : "#D3D3D3"} // Grey color when not running
         onComplete={() => [true, totalSeconds]}
       >
         {({ remainingTime }) => {
@@ -102,7 +105,7 @@ export default function Meditate() {
         {/* Timer Display */}
         {renderTimer()}
 
-        {/* Pause and Reset Buttons side by side */}
+        {/* Pause and Reset Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.sideButton} onPress={pauseTimer}>
             <LinearGradient colors={['#9B4D97', '#6A0DAD']} style={styles.sideButtonGradient}>
