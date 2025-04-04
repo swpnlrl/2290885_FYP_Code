@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-// Example: A much larger list of tips for university students
 const tipsData = [
   { id: 1, title: "Time Management", description: "Prioritize tasks using a to-do list and break tasks into smaller chunks." },
   { id: 2, title: "Stay Organized", description: "Keep your study materials and notes well-organized for easy access." },
@@ -55,18 +54,93 @@ const tipsData = [
   { id: 48, title: "Use Campus Events to Network", description: "Take advantage of campus events to build connections with professors and peers." },
   { id: 49, title: "Stay Updated with Class Announcements", description: "Regularly check your university portal or email for updates and announcements." },
   { id: 50, title: "Practice Self-Compassion", description: "Be kind to yourself when you make mistakes or fall behind. Growth is a process." },
+
 ];
+
+const NotesSection = () => {
+  const [note, setNote] = useState("");
+  const [bold, setBold] = useState(false);
+  const [italic, setItalic] = useState(false);
+  const [underline, setUnderline] = useState(false);
+  const [strikethrough, setStrikethrough] = useState(false);
+
+  useEffect(() => {
+    const loadNote = async () => {
+      const savedNote = await AsyncStorage.getItem("userNote");
+      if (savedNote) setNote(savedNote);
+    };
+    loadNote();
+  }, []);
+
+  const saveNote = async () => {
+    await AsyncStorage.setItem("userNote", note);
+  };
+
+  const formatText = (type) => {
+    switch (type) {
+      case "bold":
+        setBold(!bold);
+        break;
+      case "italic":
+        setItalic(!italic);
+        break;
+      case "underline":
+        setUnderline(!underline);
+        break;
+      case "strikethrough":
+        setStrikethrough(!strikethrough);
+        break;
+    }
+  };
+
+  return (
+    <View style={styles.notesSection}>
+      <Text style={styles.notesTitle}>Notes & Tips</Text>
+      <Text style={styles.notesDescription}>
+      </Text>
+
+      <View style={styles.formatButtons}>
+        <TouchableOpacity style={[styles.formatButton, bold && styles.activeButton]} onPress={() => formatText("bold")}>
+          <Text style={styles.buttonText}>B</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.formatButton, italic && styles.activeButton]} onPress={() => formatText("italic")}>
+          <Text style={styles.buttonText}>I</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.formatButton, underline && styles.activeButton]} onPress={() => formatText("underline")}>
+          <Text style={styles.buttonText}>U</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.formatButton, strikethrough && styles.activeButton]} onPress={() => formatText("strikethrough")}>
+          <Text style={styles.buttonText}>S</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TextInput
+        style={[
+          styles.noteInput,
+          bold && { fontWeight: "bold" },
+          italic && { fontStyle: "italic" },
+          underline && { textDecorationLine: "underline" },
+          strikethrough && { textDecorationLine: "line-through" },
+        ]}
+        multiline
+        value={note}
+        onChangeText={setNote}
+        placeholder="Write your notes here..."
+      />
+
+      <TouchableOpacity style={styles.saveButton} onPress={saveNote}>
+        <Text style={styles.saveButtonText}>Save Note</Text>
+      </TouchableOpacity>
+    </View>
+
+    
+  );
+};
 
 const TipsAndNotes = () => {
   return (
     <View style={styles.container}>
-      {/* Notes Section */}
-      <View style={styles.notesSection}>
-        <Text style={styles.notesTitle}>Notes</Text>
-        <Text style={styles.notesDescription}>Use this section to jot down important points, reminders, or anything else you want to remember!</Text>
-      </View>
-
-      {/* Tips Section */}
+      <NotesSection />
       <ScrollView style={styles.tipsContainer}>
         {tipsData.map((tip) => (
           <TouchableOpacity key={tip.id} style={styles.tipCard}>
@@ -104,6 +178,48 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     marginTop: 10,
+  },
+  formatButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  formatButton: {
+    backgroundColor: '#ddd',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  activeButton: {
+    backgroundColor: '#9B4D97',
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  noteInput: {
+    minHeight: 100,
+    width: '100%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  saveButton: {
+    backgroundColor: '#6A0DAD',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   tipsContainer: {
     width: '100%',

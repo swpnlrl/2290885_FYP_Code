@@ -26,7 +26,7 @@ export default function HomeScreen() {
   };
 
   const handletipClick = () => {
-    router.push('/Tips & Note'); // Route to the Tips & Notes screen
+    router.push('/Focus'); // Route to the Tips & Notes screen
   };
 
   const handlemoodClick = () => {
@@ -62,7 +62,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        {['Log Food', 'To-Do List', 'Reminder', 'Timer', 'Insights', 'Tips & Note', 'Meditation & Deep Breathing'].map((text, index) => (
+        {['Log Food', 'To-Do List', 'Reminder', 'Timer', 'Insights', 'Focus', 'Meditation & Deep Breathing'].map((text, index) => (
           <TouchableOpacity
             key={index}
             style={[styles.button, index === 0 ? styles.firstButton : null]}
@@ -84,7 +84,7 @@ export default function HomeScreen() {
     handlemoodClick(); // This will navigate to the Todo screen
   }
 
-  if (text === 'Tips & Note') {
+  if (text === 'Focus') {
     handletipClick();  // This will navigate to the Todo screen
   }
 
