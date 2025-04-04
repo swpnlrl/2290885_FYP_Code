@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const HealthLog = () => {
   const [caloriesGoal, setCaloriesGoal] = useState(0);
@@ -65,23 +66,25 @@ const HealthLog = () => {
       {/* Exercise Section */}
       <View style={styles.mealContainer}>
         <Text style={styles.mealTitle}>Exercise</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {[
-            { name: 'Light Exercise', calories: 200 },
-            { name: 'Moderate Exercise', calories: 400 },
-            { name: 'Heavy Exercise', calories: 600 },
-          ].map((exercise, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.exerciseButton}
-              onPress={() => handleAddExercise(exercise.calories)}
-            >
+
+        {[
+          { name: 'Light Exercise', calories: 200 },
+          { name: 'Moderate Exercise', calories: 400 },
+          { name: 'Heavy Exercise', calories: 600 },
+        ].map((exercise, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.exerciseButton}
+            onPress={() => handleAddExercise(exercise.calories)}
+          >
+            <LinearGradient colors={['#9B4D97', '#6A0DAD']} style={styles.exerciseGradient}>
               <Text style={styles.exerciseText}>
                 {exercise.name} (+{exercise.calories} kcal)
               </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
+
         <TouchableOpacity style={styles.resetButton} onPress={handleResetExercise}>
           <Text style={styles.resetButtonText}>Reset Exercise</Text>
         </TouchableOpacity>
@@ -142,14 +145,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   exerciseButton: {
-    backgroundColor: '#9B4D97',
-    padding: 10,
     borderRadius: 5,
-    marginRight: 10,
+    marginVertical: 6,
+    overflow: 'hidden',
+  },
+  exerciseGradient: {
+    padding: 12,
+    alignItems: 'center',
+    borderRadius: 5,
   },
   exerciseText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   resetButton: {
     marginTop: 10,
@@ -161,7 +169,6 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: 'white',
     fontSize: 16,
-    
   },
 });
 
