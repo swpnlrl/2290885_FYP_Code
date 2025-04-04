@@ -170,7 +170,7 @@ export default function Profile() {
 
         {/* Row 2: Edit Profile Button */}
         <View style={styles.row}>
-          <TouchableOpacity onPress={() => router.push('/edit-profile')} style={styles.editButton}>
+          <TouchableOpacity onPress={() => router.push('/Edit')} style={styles.editButton}>
             <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
