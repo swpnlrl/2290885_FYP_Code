@@ -1,188 +1,168 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 const HealthLog = () => {
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('');
-  const [height, setHeight] = useState('');
-  const [weight, setWeight] = useState('');
-  const [goal, setGoal] = useState('');
-  const [activityLevel, setActivityLevel] = useState('');
-  const [bmr, setBmr] = useState(null);
-  const [calories, setCalories] = useState(null);
+  const [caloriesGoal, setCaloriesGoal] = useState(0);
+  const [foodCalories, setFoodCalories] = useState(0);
+  const [exerciseCalories, setExerciseCalories] = useState(0);
+  const router = useRouter();
 
-  // Modal states
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState('');
+  useEffect(() => {
+    const loadCalories = async () => {
+      try {
+        const savedData = await AsyncStorage.getItem('userData');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          setCaloriesGoal(parsedData.calories);
+        } else {
+          Alert.alert('Error', 'No user data found.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load data.');
+      }
+    };
 
-  const calculateBMR = () => {
-    if (!age || !gender || !height || !weight || !activityLevel) {
-      Alert.alert('Error', 'Please fill in all fields.');
-      return;
-    }
+    loadCalories();
+  }, []);
 
-    const weightNum = parseFloat(weight);
-    const heightNum = parseFloat(height);
-    const ageNum = parseInt(age);
-
-    if (isNaN(weightNum) || isNaN(heightNum) || isNaN(ageNum)) {
-      Alert.alert('Error', 'Please provide valid numbers for weight, height, and age.');
-      return;
-    }
-
-    let bmrValue;
-
-    // BMR calculation based on gender
-    if (gender === 'male') {
-      bmrValue = (10 * weightNum) + (6.25 * heightNum) - (5 * ageNum) + 5;
-    } else if (gender === 'female') {
-      bmrValue = (10 * weightNum) + (6.25 * heightNum) - (5 * ageNum) - 161;
-    } else {
-      Alert.alert('Error', 'Please select a gender.');
-      return;
-    }
-
-    // Calculate TDEE based on activity level
-    let tdee = bmrValue;
-    switch (activityLevel) {
-      case 'sedentary':
-        tdee *= 1.2;
-        break;
-      case 'light':
-        tdee *= 1.375;
-        break;
-      case 'moderate':
-        tdee *= 1.55;
-        break;
-      case 'active':
-        tdee *= 1.725;
-        break;
-      case 'super':
-        tdee *= 1.9;
-        break;
-      default:
-        Alert.alert('Error', 'Please select an activity level.');
-        return;
-    }
-
-    let calorieAdjustment = 0;
-
-    if (goal === 'cutting') {
-      calorieAdjustment = tdee * 0.8; // 20% below TDEE
-    } else if (goal === 'bulking') {
-      calorieAdjustment = tdee * 1.2; // 20% above TDEE
-    } else if (goal === 'maintaining') {
-      calorieAdjustment = tdee; // TDEE for maintenance
-    } else {
-      Alert.alert('Error', 'Please select a goal.');
-      return;
-    }
-
-    setBmr(bmrValue);
-    setCalories(calorieAdjustment);
+  const handleAddFood = () => {
+    router.push('/AddFood');
   };
 
-  const openModal = (type) => {
-    setModalType(type);
-    setModalVisible(true);
+  const handleAddExercise = (calories) => {
+    setExerciseCalories((prev) => prev + calories);
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
+  const handleResetExercise = () => {
+    setExerciseCalories(0);
   };
+
+  const caloriesRemaining = caloriesGoal - foodCalories + exerciseCalories;
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 20 }}>
-      <View>
-        <Text>Age:</Text>
-        <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
-          keyboardType="numeric"
-          value={age}
-          onChangeText={setAge}
-          placeholder="Enter your age"
-        />
-
-        <Text>Gender:</Text>
-        <TouchableOpacity onPress={() => openModal('gender')}>
-          <Text style={{ height: 40, borderColor: 'gray', borderWidth: 1, padding: 10, marginBottom: 10 }}>
-            {gender || 'Select Gender'}
-          </Text>
-        </TouchableOpacity>
-
-        <Text>Height (cm):</Text>
-        <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
-          keyboardType="numeric"
-          value={height}
-          onChangeText={setHeight}
-          placeholder="Enter your height"
-        />
-
-        <Text>Weight (kg):</Text>
-        <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10 }}
-          keyboardType="numeric"
-          value={weight}
-          onChangeText={setWeight}
-          placeholder="Enter your weight"
-        />
-
-        <Text>Goal:</Text>
-        <TouchableOpacity onPress={() => openModal('goal')}>
-          <Text style={{ height: 40, borderColor: 'gray', borderWidth: 1, padding: 10, marginBottom: 10 }}>
-            {goal || 'Select Goal'}
-          </Text>
-        </TouchableOpacity>
-
-        <Text>Activity Level:</Text>
-        <TouchableOpacity onPress={() => openModal('activityLevel')}>
-          <Text style={{ height: 40, borderColor: 'gray', borderWidth: 1, padding: 10, marginBottom: 20 }}>
-            {activityLevel || 'Select Activity Level'}
-          </Text>
-        </TouchableOpacity>
-
-        <Button title="Calculate" onPress={calculateBMR} />
-
-        {bmr && (
-          <View style={{ marginTop: 20 }}>
-            <Text>BMR: {bmr.toFixed(2)} kcal/day</Text>
-            <Text>Calories to {goal}: {calories.toFixed(2)} kcal/day</Text>
-          </View>
-        )}
+    <View style={styles.container}>
+      {/* Calories Remaining Section */}
+      <View style={styles.caloriesContainer}>
+        <Text style={styles.caloriesText}>Calories Remaining:</Text>
+        <Text style={styles.caloriesValue}>{caloriesRemaining} kcal</Text>
+        <Text style={styles.caloriesDetail}>
+          Goal: {caloriesGoal} kcal - Food: {foodCalories} kcal + Exercise: {exerciseCalories} kcal
+        </Text>
       </View>
 
-      {/* Modal for selecting Gender, Goal, and Activity Level */}
-      <Modal visible={modalVisible} animationType="slide" onRequestClose={closeModal}>
-        <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
-          <Text>Select {modalType}:</Text>
-          {modalType === 'gender' && (
-            <>
-              <Button title="Male" onPress={() => { setGender('male'); closeModal(); }} />
-              <Button title="Female" onPress={() => { setGender('female'); closeModal(); }} />
-            </>
-          )}
-          {modalType === 'goal' && (
-            <>
-              <Button title="Cutting" onPress={() => { setGoal('cutting'); closeModal(); }} />
-              <Button title="Bulking" onPress={() => { setGoal('bulking'); closeModal(); }} />
-              <Button title="Maintaining" onPress={() => { setGoal('maintaining'); closeModal(); }} />
-            </>
-          )}
-          {modalType === 'activityLevel' && (
-            <>
-              <Button title="Sedentary" onPress={() => { setActivityLevel('sedentary'); closeModal(); }} />
-              <Button title="Lightly active" onPress={() => { setActivityLevel('light'); closeModal(); }} />
-              <Button title="Moderately active" onPress={() => { setActivityLevel('moderate'); closeModal(); }} />
-              <Button title="Very active" onPress={() => { setActivityLevel('active'); closeModal(); }} />
-              <Button title="Super active" onPress={() => { setActivityLevel('super'); closeModal(); }} />
-            </>
-          )}
-          <Button title="Cancel" onPress={closeModal} />
+      {/* Meal Sections */}
+      {['Breakfast', 'Lunch', 'Dinner'].map((meal, index) => (
+        <View key={index} style={styles.mealContainer}>
+          <Text style={styles.mealTitle}>{meal}</Text>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddFood}>
+            <Text style={styles.addButtonText}>+ Add Food</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </ScrollView>
+      ))}
+
+      {/* Exercise Section */}
+      <View style={styles.mealContainer}>
+        <Text style={styles.mealTitle}>Exercise</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {[
+            { name: 'Light Exercise', calories: 200 },
+            { name: 'Moderate Exercise', calories: 400 },
+            { name: 'Heavy Exercise', calories: 600 },
+          ].map((exercise, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.exerciseButton}
+              onPress={() => handleAddExercise(exercise.calories)}
+            >
+              <Text style={styles.exerciseText}>
+                {exercise.name} (+{exercise.calories} kcal)
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        <TouchableOpacity style={styles.resetButton} onPress={handleResetExercise}>
+          <Text style={styles.resetButtonText}>Reset Exercise</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: 'white',
+  },
+  caloriesContainer: {
+    padding: 15,
+    backgroundColor: '#E6E6FA',
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  caloriesText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#6A0DAD',
+  },
+  caloriesValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 5,
+  },
+  caloriesDetail: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 5,
+  },
+  mealContainer: {
+    padding: 15,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  mealTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#6A0DAD',
+  },
+  addButton: {
+    marginTop: 10,
+    backgroundColor: '#6A0DAD',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  exerciseButton: {
+    backgroundColor: '#9B4D97',
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  exerciseText: {
+    color: 'white',
+    fontSize: 14,
+  },
+  resetButton: {
+    marginTop: 10,
+    backgroundColor: '#FF0000',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  resetButtonText: {
+    color: 'white',
+    fontSize: 16,
+    
+  },
+});
 
 export default HealthLog;
