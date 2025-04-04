@@ -21,6 +21,10 @@ export default function HomeScreen() {
     return () => unsubscribe(); // Cleanup subscription
   }, []);
 
+  const handlehealClick = () => {
+    router.push('/Healthlog');
+  };
+
   const handleProfileClick = () => {
     router.push('/Profile');
   };
@@ -66,7 +70,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        {['Log Food', 'To-Do List', 'Reminder', 'Timer', 'Insights', 'Focus', 'Calm'].map((text, index) => (
+        {['Healthlog', 'To-Do List', 'Reminder', 'Timer', 'Insights', 'Focus', 'Calm'].map((text, index) => (
           <TouchableOpacity
             key={index}
             style={[styles.button, index === 0 ? styles.firstButton : null]}
@@ -96,6 +100,12 @@ export default function HomeScreen() {
   if (text === 'Focus') {
     handletipClick();  // This will navigate to the Todo screen
   }
+
+
+  if (text === 'Healthlog') {
+    handlehealClick();  // This will navigate to the Todo screen
+  }
+
 
 
 
