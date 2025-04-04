@@ -54,7 +54,6 @@ const tipsData = [
   { id: 48, title: "Use Campus Events to Network", description: "Take advantage of campus events to build connections with professors and peers." },
   { id: 49, title: "Stay Updated with Class Announcements", description: "Regularly check your university portal or email for updates and announcements." },
   { id: 50, title: "Practice Self-Compassion", description: "Be kind to yourself when you make mistakes or fall behind. Growth is a process." },
-
 ];
 
 const NotesSection = () => {
@@ -72,9 +71,12 @@ const NotesSection = () => {
     loadNote();
   }, []);
 
-  const saveNote = async () => {
-    await AsyncStorage.setItem("userNote", note);
-  };
+  useEffect(() => {
+    const saveNote = async () => {
+      await AsyncStorage.setItem("userNote", note);
+    };
+    saveNote();
+  }, [note]);
 
   const formatText = (type) => {
     switch (type) {
@@ -95,9 +97,7 @@ const NotesSection = () => {
 
   return (
     <View style={styles.notesSection}>
-      <Text style={styles.notesTitle}>Notes & Tips</Text>
-      <Text style={styles.notesDescription}>
-      </Text>
+      <Text style={styles.notesTitle}></Text>
 
       <View style={styles.formatButtons}>
         <TouchableOpacity style={[styles.formatButton, bold && styles.activeButton]} onPress={() => formatText("bold")}>
@@ -127,13 +127,7 @@ const NotesSection = () => {
         onChangeText={setNote}
         placeholder="Write your notes here..."
       />
-
-      <TouchableOpacity style={styles.saveButton} onPress={saveNote}>
-        <Text style={styles.saveButtonText}>Save Note</Text>
-      </TouchableOpacity>
     </View>
-
-    
   );
 };
 
@@ -164,6 +158,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: 'white',
+    paddingTop: 0, 
   },
   notesSection: {
     width: '100%',
@@ -189,64 +184,53 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
-    marginRight: 10,
   },
   activeButton: {
-    backgroundColor: '#9B4D97',
+    backgroundColor: '#6A0DAD',
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
+    color: '#fff',
   },
   noteInput: {
-    minHeight: 100,
     width: '100%',
+    height: 150,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    textAlignVertical: 'top',
+    color: '#333',
   },
-  saveButton: {
-    backgroundColor: '#6A0DAD',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: 'white',
-    fontSize: 16,
+  tipsTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
+    color: '#333',
+    marginTop: 30,
+    marginBottom: 10,
   },
   tipsContainer: {
     width: '100%',
   },
   tipCard: {
-    marginVertical: 10,
+    marginBottom: 15,
     borderRadius: 10,
     overflow: 'hidden',
   },
   buttonGradient: {
-    paddingVertical: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 15,
     borderRadius: 10,
-    marginBottom: 10,
   },
   tipTitle: {
-    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
+    color: '#fff',
+    alignSelf: 'flex-start', 
   },
   tipDescription: {
-    color: 'white',
     fontSize: 14,
-    textAlign: 'center',
-    marginTop: 5,
+    color: '#fff',
   },
 });
 
