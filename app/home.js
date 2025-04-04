@@ -47,7 +47,7 @@ export default function HomeScreen() {
   };
 
   const handlecalmClick = () => {
-    router.push('/Calm');  // Route to the todo.js page
+    router.push('/Mindfulness');  // Route to the todo.js page
   };
 
   return (
@@ -66,7 +66,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        {['Log Food', 'To-Do List', 'Reminder', 'Timer', 'Insights', 'Focus', 'Calm'].map((text, index) => (
+        {['Log Food', 'To-Do List', 'Reminder', 'Timer', 'Insights', 'Focus', 'Mindfulness'].map((text, index) => (
           <TouchableOpacity
             key={index}
             style={[styles.button, index === 0 ? styles.firstButton : null]}
@@ -84,7 +84,7 @@ export default function HomeScreen() {
     handletimeClick(); // This will navigate to the Todo screen
   }
 
-  if (text === 'Calm') {
+  if (text === 'Mindfulness') {
     handlecalmClick(); // This will navigate to the Todo screen
   }
 
