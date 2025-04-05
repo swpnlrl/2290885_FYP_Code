@@ -15,6 +15,7 @@ export default function Profile() {
   useEffect(() => {
     const currentUser = auth.currentUser;
     setUser(currentUser);
+    setImage(currentUser?.photoURL); // Set the initial image URL if available
   }, []);
 
   const handleLogout = async () => {
@@ -41,7 +42,7 @@ export default function Profile() {
     });
 
     if (!result.cancelled) {
-      setImage(result.uri);
+      setImage(result.uri);  // Immediately update the local image state
       uploadImage(result.uri);
     }
   };
@@ -66,6 +67,7 @@ export default function Profile() {
           updateProfile(auth.currentUser, { photoURL: downloadURL })
             .then(() => {
               console.log('Profile updated with new photo');
+              setUser(auth.currentUser); // Update the user state to reflect the changes
             })
             .catch((error) => {
               console.error('Error updating profile:', error);
