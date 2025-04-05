@@ -228,10 +228,10 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   mealContainer: {
-    padding: 15,
+    padding: 5,
     backgroundColor: '#F8F8F8',
     borderRadius: 10,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   mealTitle: {
     fontSize: 18,
