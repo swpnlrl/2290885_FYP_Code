@@ -1,144 +1,191 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import FoodSearch from './food'; // Import the FoodSearch component
-import Icon from 'react-native-vector-icons/AntDesign'; // Importing cross icon from AntDesign
+import FoodSearch from './food';
+import Icon from 'react-native-vector-icons/AntDesign';
+
+const STORAGE_KEYS = {
+  SELECTED_FOODS: 'selectedFoods',
+  FOOD_CALORIES: 'foodCalories',
+  EXERCISE_CALORIES: 'exerciseCalories',
+  USER_DATA: 'userData',
+};
 
 const HealthLog = () => {
   const [caloriesGoal, setCaloriesGoal] = useState(0);
   const [foodCalories, setFoodCalories] = useState(0);
   const [exerciseCalories, setExerciseCalories] = useState(0);
-  const [showFoodSearch, setShowFoodSearch] = useState(false); // Track if the food search page is displayed
   const [selectedFoods, setSelectedFoods] = useState({
     Breakfast: [],
     Lunch: [],
     Dinner: [],
-  }); // Store selected foods separately for each meal
-  const [currentMeal, setCurrentMeal] = useState(''); // Track current meal being edited
+  });
+  const [currentMeal, setCurrentMeal] = useState('');
+  const [showFoodSearch, setShowFoodSearch] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
-    const loadCalories = async () => {
+    const loadData = async () => {
       try {
-        const savedData = await AsyncStorage.getItem('userData');
-        if (savedData) {
-          const parsedData = JSON.parse(savedData);
-          setCaloriesGoal(Math.round(parsedData.calories)); // Rounded to nearest integer
-        } else {
-          Alert.alert('Error', 'No user data found.');
+        const [userData, savedFoods, savedFoodCalories, savedExerciseCalories] = await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEYS.USER_DATA),
+          AsyncStorage.getItem(STORAGE_KEYS.SELECTED_FOODS),
+          AsyncStorage.getItem(STORAGE_KEYS.FOOD_CALORIES),
+          AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_CALORIES),
+        ]);
+
+        if (userData) {
+          const parsedUserData = JSON.parse(userData);
+          const goal = Math.round(parsedUserData.calories || 2000);
+          setCaloriesGoal(goal);
         }
+
+        if (savedFoods) setSelectedFoods(JSON.parse(savedFoods));
+        if (savedFoodCalories) setFoodCalories(Number(savedFoodCalories));
+        if (savedExerciseCalories) setExerciseCalories(Number(savedExerciseCalories));
       } catch (error) {
-        Alert.alert('Error', 'Failed to load data.');
+        console.error('Failed to load data:', error);
       }
     };
 
-    loadCalories();
+    loadData();
   }, []);
 
+  useEffect(() => {
+    const saveFoods = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEYS.SELECTED_FOODS, JSON.stringify(selectedFoods));
+      } catch (error) {
+        console.error('Error saving selected foods:', error);
+      }
+    };
+    saveFoods();
+  }, [selectedFoods]);
+
+  useEffect(() => {
+    const saveFoodCalories = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEYS.FOOD_CALORIES, foodCalories.toString());
+      } catch (error) {
+        console.error('Error saving food calories:', error);
+      }
+    };
+    saveFoodCalories();
+  }, [foodCalories]);
+
+  useEffect(() => {
+    const saveExerciseCalories = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEYS.EXERCISE_CALORIES, exerciseCalories.toString());
+      } catch (error) {
+        console.error('Error saving exercise calories:', error);
+      }
+    };
+    saveExerciseCalories();
+  }, [exerciseCalories]);
+
+  // Recalculate calories remaining directly in render
+  const caloriesRemaining = Math.round(caloriesGoal - foodCalories + exerciseCalories);
+
   const handleAddFood = (meal) => {
-    setCurrentMeal(meal); // Set current meal to the one being added (Breakfast, Lunch, or Dinner)
-    setShowFoodSearch(true); // Show the food search page
+    setCurrentMeal(meal);
+    setShowFoodSearch(true);
   };
 
-  const handleAddExercise = (calories) => {
-    setExerciseCalories((prev) => prev + calories);
+  const handleFoodSelect = (food, calories) => {
+    const newFood = { food, calories };
+
+    setSelectedFoods((prev) => {
+      const updated = { ...prev };
+      updated[currentMeal] = [...updated[currentMeal], newFood];
+      return updated;
+    });
+
+    setFoodCalories((prev) => prev + calories);
+    setShowFoodSearch(false);
+  };
+
+  const handleRemoveFood = (meal, index) => {
+    setSelectedFoods((prev) => {
+      const updated = { ...prev };
+      const removed = updated[meal][index];
+      updated[meal] = updated[meal].filter((_, i) => i !== index);
+      setFoodCalories((prevCals) => prevCals - removed.calories);
+      return updated;
+    });
+  };
+
+  const handleAddExercise = (cals) => {
+    setExerciseCalories((prev) => prev + cals);
   };
 
   const handleResetExercise = () => {
     setExerciseCalories(0);
   };
 
-  const caloriesRemaining = Math.round(caloriesGoal - foodCalories + exerciseCalories); // Rounding remaining calories
-
-  const handleFoodSelect = (food, calories) => {
-    setSelectedFoods((prevFoods) => {
-      const updatedFoods = { ...prevFoods };
-      updatedFoods[currentMeal].push({ food, calories }); // Add selected food to the current meal
-      return updatedFoods;
-    });
-
-    setFoodCalories((prevCalories) => prevCalories + calories); // Update total food calories
-    setShowFoodSearch(false); // Close the food search page
-  };
-
-  // Remove food from selected foods in the current meal
-  const handleRemoveFood = (meal, index) => {
-    setSelectedFoods((prevFoods) => {
-      const updatedFoods = { ...prevFoods };
-      updatedFoods[meal] = updatedFoods[meal].filter((_, idx) => idx !== index); // Remove food from the current meal
-      return updatedFoods;
-    });
-    // Recalculate total food calories
-    setFoodCalories(
-      Object.values(selectedFoods).flat().reduce((total, food) => total + food.calories, 0)
-    );
-  };
-
   return (
     <FlatList
-      data={[{ key: 'meal' }]} // Dummy data for FlatList (you can add more sections if necessary)
+      data={[{ key: 'main' }]}
       renderItem={() => (
         <>
           {showFoodSearch ? (
-            <FoodSearch onFoodSelect={handleFoodSelect} /> // Pass handleFoodSelect as a prop
+            <FoodSearch onFoodSelect={handleFoodSelect} />
           ) : (
             <>
               <View style={styles.caloriesContainer}>
-                <Text style={styles.caloriesText}>Calories Remaining:</Text>
+                <Text style={styles.caloriesText}>Calories Remaining</Text>
                 <Text style={styles.caloriesValue}>{caloriesRemaining} kcal</Text>
                 <Text style={styles.caloriesDetail}>
-                  Goal: {Math.round(caloriesGoal)} kcal - Food: {Math.round(foodCalories)} kcal + Exercise: {Math.round(exerciseCalories)} kcal
+                  Goal: {caloriesGoal} - Food: {foodCalories} + Exercise: {exerciseCalories}
                 </Text>
               </View>
 
-              {/* Meal Sections */}
-              {['Breakfast', 'Lunch', 'Dinner'].map((meal, index) => (
-                <View key={index} style={styles.mealContainer}>
+              {['Breakfast', 'Lunch', 'Dinner'].map((meal, idx) => (
+                <View key={idx} style={styles.mealContainer}>
                   <Text style={styles.mealTitle}>{meal}</Text>
 
-                  {/* Display each food in a rectangular container */}
-                  {selectedFoods[meal].length > 0 ? (
-                    selectedFoods[meal].map((item, idx) => (
-                      <View key={idx} style={styles.foodContainer}>
+                  {selectedFoods[meal]?.length > 0 ? (
+                    selectedFoods[meal].map((item, i) => (
+                      <View key={i} style={styles.foodContainer}>
                         <Text style={styles.foodTitle}>{item.food}</Text>
-                        <Text style={styles.foodCalories}>Calories: {item.calories} kcal</Text>
-
-                        {/* Cross icon to remove food */}
-                        <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveFood(meal, idx)}>
+                        <Text style={styles.foodCalories}>Calories: {item.calories}</Text>
+                        <TouchableOpacity
+                          style={styles.removeButton}
+                          onPress={() => handleRemoveFood(meal, i)}
+                        >
                           <Icon name="close" size={20} color="#FF0000" />
                         </TouchableOpacity>
                       </View>
                     ))
                   ) : (
-                    <Text>No food added</Text>
+                    <Text style={{ marginTop: 10, color: '#555' }}>No food added</Text>
                   )}
 
-                  {/* Add food button */}
                   <TouchableOpacity style={styles.addButton} onPress={() => handleAddFood(meal)}>
                     <Text style={styles.addButtonText}>+ Add {meal}</Text>
                   </TouchableOpacity>
                 </View>
               ))}
 
-              {/* Exercise Section */}
               <View style={styles.mealContainer}>
                 <Text style={styles.mealTitle}>Exercise</Text>
 
                 {[
-                  { name: 'Light Exercise', calories: 200 },
-                  { name: 'Moderate Exercise', calories: 400 },
-                  { name: 'Heavy Exercise', calories: 600 },
-                ].map((exercise, index) => (
+                  { label: 'Light', cals: 200 },
+                  { label: 'Moderate', cals: 400 },
+                  { label: 'Heavy', cals: 600 },
+                ].map((ex, i) => (
                   <TouchableOpacity
-                    key={index}
+                    key={i}
                     style={styles.exerciseButton}
-                    onPress={() => handleAddExercise(exercise.calories)}
+                    onPress={() => handleAddExercise(ex.cals)}
                   >
                     <LinearGradient colors={['#9B4D97', '#6A0DAD']} style={styles.exerciseGradient}>
                       <Text style={styles.exerciseText}>
-                        {exercise.name} (+{exercise.calories} kcal)
+                        {ex.label} (+{ex.cals} kcal)
                       </Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -158,11 +205,6 @@ const HealthLog = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: 'white',
-  },
   caloriesContainer: {
     padding: 15,
     backgroundColor: '#E6E6FA',
@@ -176,14 +218,13 @@ const styles = StyleSheet.create({
     color: '#6A0DAD',
   },
   caloriesValue: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
-    marginTop: 5,
+    color: '#222',
   },
   caloriesDetail: {
     fontSize: 14,
-    color: '#555',
+    color: '#444',
     marginTop: 5,
   },
   mealContainer: {
@@ -196,15 +237,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#6A0DAD',
+    marginBottom: 10,
   },
   foodContainer: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#FFF',
     padding: 10,
     marginTop: 10,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#DDD',
-    position: 'relative', // For positioning the cross icon
+    position: 'relative',
   },
   foodTitle: {
     fontSize: 16,
@@ -213,7 +255,7 @@ const styles = StyleSheet.create({
   },
   foodCalories: {
     fontSize: 14,
-    color: '#333',
+    color: '#444',
   },
   removeButton: {
     position: 'absolute',
@@ -232,8 +274,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   exerciseButton: {
-    borderRadius: 5,
     marginVertical: 6,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   exerciseGradient: {
@@ -243,8 +285,8 @@ const styles = StyleSheet.create({
   },
   exerciseText: {
     color: 'white',
-    fontSize: 16,
     fontWeight: 'bold',
+    fontSize: 16,
   },
   resetButton: {
     marginTop: 10,
