@@ -1,13 +1,17 @@
+// HealthLog.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import FoodSearch from './food'; // Import the FoodSearch component
 
 const HealthLog = () => {
   const [caloriesGoal, setCaloriesGoal] = useState(0);
   const [foodCalories, setFoodCalories] = useState(0);
   const [exerciseCalories, setExerciseCalories] = useState(0);
+  const [showFoodSearch, setShowFoodSearch] = useState(false); // Track if the food search page is displayed
+  const [selectedFood, setSelectedFood] = useState(null); // Store selected food
   const router = useRouter();
 
   useEffect(() => {
@@ -29,7 +33,7 @@ const HealthLog = () => {
   }, []);
 
   const handleAddFood = () => {
-    router.push('/AddFood');
+    setShowFoodSearch(true); // Show the food search page
   };
 
   const handleAddExercise = (calories) => {
@@ -42,52 +46,63 @@ const HealthLog = () => {
 
   const caloriesRemaining = Math.round(caloriesGoal - foodCalories + exerciseCalories); // Rounding remaining calories
 
+  const handleFoodSelect = (food) => {
+    setFoodCalories(food.nutriments ? food.nutriments.energy_kcal_100g : 0); // Update food calories
+    setShowFoodSearch(false); // Close the food search page
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.caloriesContainer}>
-        <Text style={styles.caloriesText}>Calories Remaining:</Text>
-        <Text style={styles.caloriesValue}>{caloriesRemaining} kcal</Text>
-        <Text style={styles.caloriesDetail}>
-          Goal: {Math.round(caloriesGoal)} kcal - Food: {Math.round(foodCalories)} kcal + Exercise: {Math.round(exerciseCalories)} kcal
-        </Text>
-      </View>
+      {showFoodSearch ? (
+        <FoodSearch onFoodSelect={handleFoodSelect} />
+      ) : (
+        <>
+          <View style={styles.caloriesContainer}>
+            <Text style={styles.caloriesText}>Calories Remaining:</Text>
+            <Text style={styles.caloriesValue}>{caloriesRemaining} kcal</Text>
+            <Text style={styles.caloriesDetail}>
+              Goal: {Math.round(caloriesGoal)} kcal - Food: {Math.round(foodCalories)} kcal + Exercise: {Math.round(exerciseCalories)} kcal
+            </Text>
+          </View>
 
-      {/* Meal Sections */}
-      {['Breakfast', 'Lunch', 'Dinner'].map((meal, index) => (
-        <View key={index} style={styles.mealContainer}>
-          <Text style={styles.mealTitle}>{meal}</Text>
-          <TouchableOpacity style={styles.addButton} onPress={handleAddFood}>
-            <Text style={styles.addButtonText}>+ Add Food</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
+          {/* Meal Sections */}
+          {['Breakfast', 'Lunch', 'Dinner'].map((meal, index) => (
+            <View key={index} style={styles.mealContainer}>
+              <Text style={styles.mealTitle}>{meal}</Text>
+              <TouchableOpacity style={styles.addButton} onPress={handleAddFood}>
+                <Text style={styles.addButtonText}>+ Add Food</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
 
-      {/* Exercise Section */}
-      <View style={styles.mealContainer}>
-        <Text style={styles.mealTitle}>Exercise</Text>
+          {/* Exercise Section */}
+          <View style={styles.mealContainer}>
+            <Text style={styles.mealTitle}>Exercise</Text>
 
-        {[
-          { name: 'Light Exercise', calories: 200 },
-          { name: 'Moderate Exercise', calories: 400 },
-          { name: 'Heavy Exercise', calories: 600 },
-        ].map((exercise, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.exerciseButton}
-            onPress={() => handleAddExercise(exercise.calories)}
-          >
-            <LinearGradient colors={['#9B4D97', '#6A0DAD']} style={styles.exerciseGradient}>
-              <Text style={styles.exerciseText}>
-                {exercise.name} (+{exercise.calories} kcal)
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
+            {[
+              { name: 'Light Exercise', calories: 200 },
+              { name: 'Moderate Exercise', calories: 400 },
+              { name: 'Heavy Exercise', calories: 600 },
+            ].map((exercise, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.exerciseButton}
+                onPress={() => handleAddExercise(exercise.calories)}
+              >
+                <LinearGradient colors={['#9B4D97', '#6A0DAD']} style={styles.exerciseGradient}>
+                  <Text style={styles.exerciseText}>
+                    {exercise.name} (+{exercise.calories} kcal)
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
 
-        <TouchableOpacity style={styles.resetButton} onPress={handleResetExercise}>
-          <Text style={styles.resetButtonText}>Reset Exercise</Text>
-        </TouchableOpacity>
-      </View>
+            <TouchableOpacity style={styles.resetButton} onPress={handleResetExercise}>
+              <Text style={styles.resetButtonText}>Reset Exercise</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </View>
   );
 };
