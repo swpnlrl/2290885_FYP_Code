@@ -17,17 +17,8 @@ export default function Username() {
 
     try {
       await updateProfile(user, { displayName: newUsername });
-
-      // Show the alert first
-      Alert.alert('Username updated successfully!', '', [
-        {
-          text: 'Okay',
-          onPress: () => {
-            // Navigate after alert is dismissed
-            router.push('/');
-          }
-        }
-      ]);
+      Alert.alert('Username updated successfully!');
+      router.back(); // Navigate back to Profile
     } catch (error) {
       console.error('Error updating username:', error);
       Alert.alert('Something went wrong. Please try again.');
