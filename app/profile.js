@@ -177,7 +177,7 @@ export default function Profile() {
 
         {/* Row 3: Delete Account Button */}
 <View style={styles.row}>
-  <TouchableOpacity onPress={() => router.push('/delete')} style={styles.editButton}>
+  <TouchableOpacity onPress={() => router.push('/Delete')} style={styles.editButton}>
     <Text style={styles.editButtonText}>Delete Account</Text>
   </TouchableOpacity>
 </View>
