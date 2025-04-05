@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -24,6 +24,7 @@ const HealthLog = () => {
   });
   const [currentMeal, setCurrentMeal] = useState('');
   const [showFoodSearch, setShowFoodSearch] = useState(false);
+  const [showCongratulationModal, setShowCongratulationModal] = useState(false); // New state for modal
 
   const router = useRouter();
 
@@ -90,6 +91,13 @@ const HealthLog = () => {
   // Recalculate calories remaining directly in render
   const caloriesRemaining = Math.round(caloriesGoal - foodCalories + exerciseCalories);
 
+  // Check if the goal is met and show the modal, only if the calories goal is reached and some data exists
+  useEffect(() => {
+    if (caloriesRemaining <= 0 && foodCalories > 0 && exerciseCalories > 0) {
+      setShowCongratulationModal(true);
+    }
+  }, [caloriesRemaining, foodCalories, exerciseCalories]);
+
   const handleAddFood = (meal) => {
     setCurrentMeal(meal);
     setShowFoodSearch(true);
@@ -124,6 +132,10 @@ const HealthLog = () => {
 
   const handleResetExercise = () => {
     setExerciseCalories(0);
+  };
+
+  const handleCloseCongratulationModal = () => {
+    setShowCongratulationModal(false);
   };
 
   return (
@@ -197,6 +209,25 @@ const HealthLog = () => {
               </View>
             </>
           )}
+
+          {/* Congratulations Modal */}
+          <Modal
+            transparent={true}
+            animationType="fade"
+            visible={showCongratulationModal}
+            onRequestClose={handleCloseCongratulationModal}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.congratulationText}>
+                  🎉 Congratulations! You've met your goal! 🎉
+                </Text>
+                <TouchableOpacity onPress={handleCloseCongratulationModal}>
+                  <Text style={styles.closeModalText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </>
       )}
       keyExtractor={(item, index) => index.toString()}
@@ -298,6 +329,29 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: 'white',
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  congratulationText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#6A0DAD',
+    marginBottom: 10,
+  },
+  closeModalText: {
+    fontSize: 16,
+    color: '#6A0DAD',
+    marginTop: 10,
   },
 });
 
