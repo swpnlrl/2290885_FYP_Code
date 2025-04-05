@@ -80,7 +80,7 @@ export default function Timer() {
   const handleEndSound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(
-        require('./assets/alarm1.mp3'), // Directly require the sound file
+        require('/Users/swapnilaryal/FYPCode/ChronoWell/assets/alarm1.mp3'), // Directly require the sound file
         { shouldPlay: true }
       );
       setSound(sound);

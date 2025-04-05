@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet, Modal } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av'; // Import for handling audio
 
 export default function Meditate() {
   const [hrs, setHrs] = useState('00');
@@ -9,6 +10,8 @@ export default function Meditate() {
   const [sec, setSec] = useState('00');
   const [isRunning, setIsRunning] = useState(false);
   const [totalSeconds, setTotalSeconds] = useState(0);
+  const [sound, setSound] = useState();
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
 
   const convertToSeconds = () => {
     return (parseInt(hrs) * 3600) + (parseInt(min) * 60) + parseInt(sec);
@@ -29,17 +32,43 @@ export default function Meditate() {
     setHrs('00');
     setMin('00');
     setSec('00');
-    setTotalSeconds(0); // Reset totalSeconds explicitly to 0
+    setTotalSeconds(0);
+    setModalVisible(false); // Close modal on reset
+    stopSound(); // Stop sound when resetting
+  };
+
+  const stopSound = async () => {
+    if (sound) {
+      await sound.stopAsync(); // Stop the sound when closing modal or resetting
+      setSound(null); // Optional: clear sound state after stopping
+    }
+  };
+
+  const handleEndSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('/Users/swapnilaryal/FYPCode/ChronoWell/assets/alarm1.mp3'), // Path to your alarm sound file
+        { shouldPlay: true }
+      );
+      setSound(sound);
+      await sound.playAsync();
+      setModalVisible(true); // Show modal when the timer ends
+    } catch (error) {
+      console.log('Error loading sound', error);
+    }
   };
 
   const renderTimer = () => {
     return (
       <CountdownCircleTimer
-        key={totalSeconds}  // Add the key here to reset the timer component
+        key={totalSeconds} 
         isPlaying={isRunning}
         duration={totalSeconds}
-        colors={isRunning ? "#00E676" : "#D3D3D3"} // Grey color when not running
-        onComplete={() => [true, totalSeconds]}
+        colors={isRunning ? "#00E676" : "#D3D3D3"}
+        onComplete={() => {
+          handleEndSound();  // Trigger sound when countdown ends
+          return [true, totalSeconds];
+        }}
       >
         {({ remainingTime }) => {
           const mins = Math.floor(remainingTime / 60);
@@ -59,7 +88,6 @@ export default function Meditate() {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
-        {/* Timer Inputs with labels */}
         <View style={styles.timeInputContainer}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Hours</Text>
@@ -119,6 +147,26 @@ export default function Meditate() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+
+        {/* Modal when Timer Ends */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(false);
+            stopSound(); // Stop sound when modal is closed
+          }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Stop meditation</Text>
+              <TouchableOpacity onPress={resetTimer} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -131,13 +179,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     padding: 30,
-    paddingTop: 50, // Added padding-top to bring everything up
+    paddingTop: 50,
   },
   timeInputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '85%', // Reduced width to bring elements closer
-    marginBottom: 15, // Reduced margin to bring inputs closer
+    width: '85%',
+    marginBottom: 15,
   },
   inputGroup: {
     alignItems: 'center',
@@ -187,7 +235,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '85%', // Reduced width for better alignment
+    width: '85%',
     marginTop: 20,
   },
   sideButton: {
@@ -199,5 +247,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  modalButton: {
+    padding: 10,
+    backgroundColor: '#6A0DAD',
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
