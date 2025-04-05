@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import axios from 'axios';
 
-const FoodSearch = () => {
+const FoodSearch = ({ onFoodSelect }) => {
   const [query, setQuery] = useState('');
   const [foodList, setFoodList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -11,7 +11,7 @@ const FoodSearch = () => {
   // Replace with your new API Key
   const SPONTANEOUS_API_KEY = 'fa39a74a26f440bda5c7d9fb0bed2a54';
 
-  // Function to search for food using the Spoonacular API
+  // Function to search food
   const searchFood = async (searchQuery) => {
     if (!searchQuery) {
       setFoodList([]);
@@ -22,21 +22,17 @@ const FoodSearch = () => {
     setError('');
 
     try {
-      // Using the Spoonacular API for food search
-      const response = await axios.get(
-        `https://api.spoonacular.com/recipes/complexSearch`,  // Correct API endpoint
-        {
-          params: {
-            query: searchQuery,
-            apiKey: SPONTANEOUS_API_KEY,
-            number: 10, // Limit results, if applicable
-            // You can add additional parameters here like maxCalories or diet
-          },
-        }
-      );
+      const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
+        params: {
+          query: searchQuery,
+          apiKey: SPONTANEOUS_API_KEY,
+          number: 10,
+          addRecipeInformation: true, // Ensure the full recipe info, including calories
+        },
+      });
 
-      if (response.data.results) {  // Adjusting for correct response structure
-        setFoodList(response.data.results); // Using 'results' instead of 'items'
+      if (response.data.results) {
+        setFoodList(response.data.results);
       } else {
         setFoodList([]);
         setError('No food items found.');
@@ -49,10 +45,17 @@ const FoodSearch = () => {
     setIsLoading(false);
   };
 
-  // Handle the query change and call the search function
+  // Update query and trigger search
   const handleQueryChange = (text) => {
     setQuery(text);
     searchFood(text);
+  };
+
+  // Send food and calorie data to HealthLog
+  const handleFoodSelect = (food) => {
+    // Extract relevant calorie data from the selected food (from the full recipe info)
+    const foodCalories = food.nutrition ? food.nutrition.nutrients.find((nutrient) => nutrient.title === 'Calories')?.amount : 0; 
+    onFoodSelect(food.title, foodCalories || 0); // Pass the food and calories to HealthLog
   };
 
   return (
@@ -74,8 +77,11 @@ const FoodSearch = () => {
           keyExtractor={(item, index) => item.id.toString() || index.toString()}
           renderItem={({ item }) => (
             <View style={styles.foodItem}>
-              <Text style={styles.foodName}>{item.title}</Text>  {/* 'title' instead of 'name' */}
-              <Text>Calories: {item.calories || 'N/A'} kcal</Text>
+              <Text style={styles.foodName}>{item.title}</Text>
+              <Text>Calories: {item.nutrition ? item.nutrition.nutrients.find((nutrient) => nutrient.title === 'Calories')?.amount : 'N/A'} kcal</Text>
+              <TouchableOpacity onPress={() => handleFoodSelect(item)}>
+                <Text style={styles.selectButton}>Select</Text>
+              </TouchableOpacity>
             </View>
           )}
         />
@@ -86,32 +92,32 @@ const FoodSearch = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 20,
-    backgroundColor: 'white',
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#ccc',
     borderWidth: 1,
+    borderRadius: 5,
     paddingLeft: 10,
     marginBottom: 20,
-    borderRadius: 5,
   },
   foodItem: {
-    backgroundColor: '#F8F8F8',
-    padding: 15,
-    borderRadius: 10,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
     marginBottom: 10,
   },
   foodName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
+  },
+  selectButton: {
     color: '#6A0DAD',
+    fontWeight: 'bold',
   },
   errorText: {
     color: 'red',
-    textAlign: 'center',
   },
 });
 

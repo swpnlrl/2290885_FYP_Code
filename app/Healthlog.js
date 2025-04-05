@@ -1,17 +1,22 @@
-// HealthLog.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import FoodSearch from './food'; // Import the FoodSearch component
+import Icon from 'react-native-vector-icons/AntDesign'; // Importing cross icon from AntDesign
 
 const HealthLog = () => {
   const [caloriesGoal, setCaloriesGoal] = useState(0);
   const [foodCalories, setFoodCalories] = useState(0);
   const [exerciseCalories, setExerciseCalories] = useState(0);
   const [showFoodSearch, setShowFoodSearch] = useState(false); // Track if the food search page is displayed
-  const [selectedFood, setSelectedFood] = useState(null); // Store selected food
+  const [selectedFoods, setSelectedFoods] = useState({
+    Breakfast: [],
+    Lunch: [],
+    Dinner: [],
+  }); // Store selected foods separately for each meal
+  const [currentMeal, setCurrentMeal] = useState(''); // Track current meal being edited
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +37,8 @@ const HealthLog = () => {
     loadCalories();
   }, []);
 
-  const handleAddFood = () => {
+  const handleAddFood = (meal) => {
+    setCurrentMeal(meal); // Set current meal to the one being added (Breakfast, Lunch, or Dinner)
     setShowFoodSearch(true); // Show the food search page
   };
 
@@ -46,15 +52,34 @@ const HealthLog = () => {
 
   const caloriesRemaining = Math.round(caloriesGoal - foodCalories + exerciseCalories); // Rounding remaining calories
 
-  const handleFoodSelect = (food) => {
-    setFoodCalories(food.nutriments ? food.nutriments.energy_kcal_100g : 0); // Update food calories
+  const handleFoodSelect = (food, calories) => {
+    setSelectedFoods((prevFoods) => {
+      const updatedFoods = { ...prevFoods };
+      updatedFoods[currentMeal].push({ food, calories }); // Add selected food to the current meal
+      return updatedFoods;
+    });
+
+    setFoodCalories((prevCalories) => prevCalories + calories); // Update total food calories
     setShowFoodSearch(false); // Close the food search page
   };
 
+  // Remove food from selected foods in the current meal
+  const handleRemoveFood = (meal, index) => {
+    setSelectedFoods((prevFoods) => {
+      const updatedFoods = { ...prevFoods };
+      updatedFoods[meal] = updatedFoods[meal].filter((_, idx) => idx !== index); // Remove food from the current meal
+      return updatedFoods;
+    });
+    // Recalculate total food calories
+    setFoodCalories(
+      Object.values(selectedFoods).flat().reduce((total, food) => total + food.calories, 0)
+    );
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {showFoodSearch ? (
-        <FoodSearch onFoodSelect={handleFoodSelect} />
+        <FoodSearch onFoodSelect={handleFoodSelect} /> // Pass handleFoodSelect as a prop
       ) : (
         <>
           <View style={styles.caloriesContainer}>
@@ -69,8 +94,27 @@ const HealthLog = () => {
           {['Breakfast', 'Lunch', 'Dinner'].map((meal, index) => (
             <View key={index} style={styles.mealContainer}>
               <Text style={styles.mealTitle}>{meal}</Text>
-              <TouchableOpacity style={styles.addButton} onPress={handleAddFood}>
-                <Text style={styles.addButtonText}>+ Add Food</Text>
+
+              {/* Display each food in a rectangular container */}
+              {selectedFoods[meal].length > 0 ? (
+                selectedFoods[meal].map((item, idx) => (
+                  <View key={idx} style={styles.foodContainer}>
+                    <Text style={styles.foodTitle}>{item.food}</Text>
+                    <Text style={styles.foodCalories}>Calories: {item.calories} kcal</Text>
+
+                    {/* Cross icon to remove food */}
+                    <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveFood(meal, idx)}>
+                      <Icon name="close" size={20} color="#FF0000" />
+                    </TouchableOpacity>
+                  </View>
+                ))
+              ) : (
+                <Text>No food added</Text>
+              )}
+
+              {/* Add food button */}
+              <TouchableOpacity style={styles.addButton} onPress={() => handleAddFood(meal)}>
+                <Text style={styles.addButtonText}>+ Add {meal}</Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -103,7 +147,7 @@ const HealthLog = () => {
           </View>
         </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -146,6 +190,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#6A0DAD',
+  },
+  foodContainer: {
+    backgroundColor: '#F0F0F0',
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    position: 'relative', // For positioning the cross icon
+  },
+  foodTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#6A0DAD',
+  },
+  foodCalories: {
+    fontSize: 14,
+    color: '#333',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
   addButton: {
     marginTop: 10,
