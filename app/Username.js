@@ -22,7 +22,7 @@ export default function Username() {
     try {
       await updateProfile(user, { displayName: newUsername });
       Alert.alert('Username updated successfully!');
-      router.back(); // Navigate back to Profile
+      router.push('/home');  // Navigate to the homepage after updating
     } catch (error) {
       console.error('Error updating username:', error);
       Alert.alert('Something went wrong. Please try again.');
