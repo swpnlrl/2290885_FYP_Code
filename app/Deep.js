@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet, Modal } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,10 +15,14 @@ export default function Deep() {
   const [currentPhase, setCurrentPhase] = useState('inhale'); // "inhale", "exhale"
   const [phaseDuration] = useState(4); // 4 seconds per phase (inhale/exhale)
 
+  const timerRef = useRef(null);  // Create a ref to store the timer interval
+
+  // Convert input time to total seconds
   const convertToSeconds = () => {
     return (parseInt(hrs) * 3600) + (parseInt(min) * 60) + parseInt(sec);
   };
 
+  // Start the timer
   const startTimer = () => {
     const seconds = convertToSeconds();
     setTotalSeconds(seconds);
@@ -26,12 +30,16 @@ export default function Deep() {
     setCurrentPhase('inhale'); // Start with inhale phase
   };
 
+  // Pause the timer
   const pauseTimer = () => {
     setIsRunning(false);
+    clearInterval(timerRef.current); // Clear the interval when paused
   };
 
+  // Reset the timer
   const resetTimer = () => {
     setIsRunning(false);
+    clearInterval(timerRef.current); // Clear the interval on reset
     setHrs('00');
     setMin('00');
     setSec('00');
@@ -41,6 +49,7 @@ export default function Deep() {
     setCurrentPhase('inhale'); // Reset phase to inhale
   };
 
+  // Stop sound
   const stopSound = async () => {
     if (sound) {
       await sound.stopAsync(); // Stop the sound when closing modal or resetting
@@ -48,6 +57,7 @@ export default function Deep() {
     }
   };
 
+  // Handle the sound when the timer ends
   const handleEndSound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(
@@ -62,26 +72,28 @@ export default function Deep() {
     }
   };
 
+  // Handle the timer complete action
   const handleComplete = () => {
-    // Handle what happens when the entire timer completes
     handleEndSound(); // Trigger sound when timer ends (end of session)
   };
 
   useEffect(() => {
     if (isRunning) {
-      const interval = setInterval(() => {
+      timerRef.current = setInterval(() => {
         if (totalSeconds > 0) {
           setTotalSeconds(prevTime => prevTime - 1);
         } else {
           handleComplete();
-          clearInterval(interval);
+          clearInterval(timerRef.current); // Stop the interval when time's up
         }
       }, 1000);
-
-      return () => clearInterval(interval);
     }
+
+    // Cleanup interval on component unmount or when isRunning is false
+    return () => clearInterval(timerRef.current);
   }, [isRunning, totalSeconds]);
 
+  // Update inhale/exhale phases based on total time
   useEffect(() => {
     if (totalSeconds % (phaseDuration * 2) === 0 && isRunning) {
       setCurrentPhase('inhale');
@@ -90,6 +102,7 @@ export default function Deep() {
     }
   }, [totalSeconds, isRunning]);
 
+  // Render the countdown timer
   const renderTimer = () => {
     return (
       <CountdownCircleTimer
@@ -191,6 +204,7 @@ export default function Deep() {
           onRequestClose={() => {
             setModalVisible(false);
             stopSound(); // Stop sound when modal is closed
+            resetTimer(); // Reset timer when modal is closed
           }}
         >
           <View style={styles.modalOverlay}>
