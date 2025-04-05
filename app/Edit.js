@@ -40,7 +40,9 @@ const Edit = () => {
 
   // Function to calculate TDEE
   const calculateCalories = () => {
-    if (!age || !height || !weight || !gender || !activityLevel) return 0;
+    if (!age || !height || !weight || !gender || !activityLevel) {
+      return 0; // Return 0 if any of the required fields are empty
+    }
 
     let BMR;
 
@@ -103,7 +105,27 @@ const Edit = () => {
       Alert.alert('Error', 'Failed to save data.');
     }
   };
-  
+
+  // Handle Reset function
+  const handleReset = async () => {
+    setAge('');
+    setHeight('');
+    setWeight('');
+    setGoal('');
+    setActivityLevel('');
+    setGender(null);
+
+    // Save empty data with 0 calories
+    const userData = { age: '', gender: null, height: '', weight: '', goal: '', activityLevel: '', calories: 0 };
+
+    try {
+      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      Alert.alert('Reset', 'Form has been reset and saved with 0 calories.');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save data.');
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
@@ -152,16 +174,22 @@ const Edit = () => {
                   setValue={item.setValue}
                   placeholder={item.placeholder}
                   style={styles.dropdown}
+                  containerStyle={{ zIndex: 100 }}
                 />
               )}
             </View>
           )}
           ListFooterComponent={
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
-              <LinearGradient colors={["#9B4D97", "#6A0DAD"]} style={styles.gradientButton}>
-                <Text style={styles.buttonText}>Save</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={handleSave}>
+                <LinearGradient colors={["#9B4D97", "#6A0DAD"]} style={styles.gradientButton}>
+                  <Text style={styles.buttonText}>Save</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={handleReset}>
+  <Text style={styles.buttonText}>Reset</Text>
+</TouchableOpacity>
+            </View>
           }
         />
       </KeyboardAvoidingView>
@@ -197,11 +225,24 @@ const styles = StyleSheet.create({
     borderColor: '#9B4D97',
     borderRadius: 8,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   button: {
     marginTop: 20,
     borderRadius: 25,
     overflow: 'hidden',
-    alignSelf: 'center',
+    width: '48%',
+  },
+  resetButton: {
+    backgroundColor: '#FF0000',  // Red background for the reset button
+    paddingVertical: 12,         // Padding for the button
+    alignItems: 'center',       // Center text horizontally
+    justifyContent: 'center',   // Center text vertically
+    borderRadius: 25,           // Rounded corners
+    width: '48%',  
+  
   },
   gradientButton: {
     paddingVertical: 12,
