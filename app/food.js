@@ -8,10 +8,11 @@ const FoodSearch = ({ onFoodSelect }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Replace with your new API Key
-  const SPONTANEOUS_API_KEY = 'fa39a74a26f440bda5c7d9fb0bed2a54';
+  // Your USDA API endpoint and API key
+  const USDA_API_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'; // USDA Food Data API endpoint
+  const USDA_API_KEY = 'QQD8XnxfvLlcYAuPtApomyScb8c3iX9NTsPLi77E'; // Replace with your actual API key
 
-  // Function to search food
+  // Function to search food from USDA data
   const searchFood = async (searchQuery) => {
     if (!searchQuery) {
       setFoodList([]);
@@ -22,17 +23,15 @@ const FoodSearch = ({ onFoodSelect }) => {
     setError('');
 
     try {
-      const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
+      const response = await axios.get(USDA_API_URL, {
         params: {
           query: searchQuery,
-          apiKey: SPONTANEOUS_API_KEY,
-          number: 10,
-          addRecipeInformation: true, // Ensure the full recipe info, including calories
+          api_key: USDA_API_KEY,
         },
       });
 
-      if (response.data.results) {
-        setFoodList(response.data.results);
+      if (response.data && response.data.foods) {
+        setFoodList(response.data.foods); // Assuming the data structure includes 'foods'
       } else {
         setFoodList([]);
         setError('No food items found.');
@@ -53,9 +52,12 @@ const FoodSearch = ({ onFoodSelect }) => {
 
   // Send food and calorie data to HealthLog
   const handleFoodSelect = (food) => {
-    // Extract relevant calorie data from the selected food (from the full recipe info)
-    const foodCalories = food.nutrition ? food.nutrition.nutrients.find((nutrient) => nutrient.title === 'Calories')?.amount : 0; 
-    onFoodSelect(food.title, foodCalories || 0); // Pass the food and calories to HealthLog
+    let foodCalories = 'N/A';
+    if (food.foodNutrients) {
+      const calories = food.foodNutrients.find((nutrient) => nutrient.nutrientName === 'Energy'); // 'Energy' is common for calories
+      foodCalories = calories ? calories.value : 'N/A';
+    }
+    onFoodSelect(food.description, foodCalories); // Pass the food and calories to HealthLog
   };
 
   return (
@@ -74,16 +76,22 @@ const FoodSearch = ({ onFoodSelect }) => {
       ) : (
         <FlatList
           data={foodList}
-          keyExtractor={(item, index) => item.id.toString() || index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.foodItem}>
-              <Text style={styles.foodName}>{item.title}</Text>
-              <Text>Calories: {item.nutrition ? item.nutrition.nutrients.find((nutrient) => nutrient.title === 'Calories')?.amount : 'N/A'} kcal</Text>
-              <TouchableOpacity onPress={() => handleFoodSelect(item)}>
-                <Text style={styles.selectButton}>Select</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          keyExtractor={(item, index) => item.fdcId.toString() || index.toString()}
+          renderItem={({ item }) => {
+            const foodCalories = item.foodNutrients
+              ? item.foodNutrients.find((nutrient) => nutrient.nutrientName === 'Energy')?.value
+              : 'N/A';
+
+            return (
+              <View style={styles.foodItem}>
+                <Text style={styles.foodName}>{item.description}</Text>
+                <Text>Calories: {foodCalories} kcal</Text>
+                <TouchableOpacity onPress={() => handleFoodSelect(item)}>
+                  <Text style={styles.selectButton}>Select</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }}
         />
       )}
     </View>
