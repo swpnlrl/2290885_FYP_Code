@@ -93,12 +93,12 @@ export default function Deep() {
   const renderTimer = () => {
     return (
       <CountdownCircleTimer
-        key={totalSeconds} 
+        key={totalSeconds}
         isPlaying={isRunning}
-        duration={phaseDuration}  // Set the duration for each inhale/exhale phase
-        colors={currentPhase === 'inhale' ? ['#00E676', '#ddd'] : ['#FF5722', '#ddd']} // Full circle color
+        duration={phaseDuration}  // Set the duration for each inhale/exhale phase (4 seconds)
+        colors={currentPhase === 'inhale' ? ['#00E676', '#ddd'] : ['#FF5722', '#ddd']} // Color based on inhale/exhale
         trailColor="#ddd"
-        rotation="counterclockwise" // Make sure the timer rotates counterclockwise
+        rotation="counterclockwise" // Ensure the timer rotates counterclockwise
         onComplete={() => {
           handleComplete();  // Trigger actions when the timer finishes
           return [false, 0]; // Stop the timer when complete
