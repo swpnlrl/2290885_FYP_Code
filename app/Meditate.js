@@ -47,7 +47,7 @@ export default function Meditate() {
   const handleEndSound = async () => {
     try {
       const { sound } = await Audio.Sound.createAsync(
-        require('/Users/swapnilaryal/FYPCode/ChronoWell/assets/alarm1.mp3'), // Path to your alarm sound file
+        require('/Users/swapnilaryal/FYPCode/ChronoWell/assets/music3.mp3'), // Path to your alarm sound file
         { shouldPlay: true }
       );
       setSound(sound);
