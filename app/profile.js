@@ -2,50 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker'; // Import expo-image-picker
-import { auth, storage } from './firebase'; // Assuming you have Firebase storage set up for profile images
+import * as ImagePicker from 'expo-image-picker';
+import { auth, storage } from './firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 
 export default function Profile() {
   const router = useRouter();
-  const [user, setUser] = useState(null); // State for user data
-  const [image, setImage] = useState(null); // State for the selected image
+  const [user, setUser] = useState(null);
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
-    // Get the current user from Firebase Auth
     const currentUser = auth.currentUser;
     setUser(currentUser);
   }, []);
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); // Firebase sign out
-      router.replace('/login'); // Redirect to login screen after logout
+      await signOut(auth);
+      router.replace('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }
   };
 
   const handlePickImage = async () => {
-    // Request permission to access gallery
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       Alert.alert("Permission to access media library is required!");
       return;
     }
 
-    // Open the image picker
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1], // Aspect ratio (square)
+      aspect: [1, 1],
       quality: 1,
     });
 
     if (!result.cancelled) {
-      setImage(result.uri); // Set the selected image URI
-      uploadImage(result.uri); // Upload image to Firebase Storage
+      setImage(result.uri);
+      uploadImage(result.uri);
     }
   };
 
@@ -60,14 +57,12 @@ export default function Profile() {
 
     uploadTask.on(
       'state_changed',
-      (snapshot) => {},
+      () => {},
       (error) => {
         console.error('Upload failed:', error);
       },
       () => {
-        // Get download URL after successful upload
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          // Update the user profile with the new image
           updateProfile(auth.currentUser, { photoURL: downloadURL })
             .then(() => {
               console.log('Profile updated with new photo');
@@ -81,6 +76,18 @@ export default function Profile() {
   };
 
   const styles = StyleSheet.create({
+    usernameContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 15,
+      gap: 10,
+    },
+    pencilIcon: {
+      width: 20,
+      height: 20,
+      tintColor: '#6A0DAD',
+      marginLeft: 5,
+    },
     container: {
       flex: 1,
       backgroundColor: 'white',
@@ -126,7 +133,7 @@ export default function Profile() {
       marginTop: 10,
       paddingVertical: 10,
       paddingHorizontal: 30,
-      backgroundColor: '#6A0DAD', 
+      backgroundColor: '#6A0DAD',
       borderRadius: 5,
       alignSelf: 'center',
     },
@@ -137,9 +144,9 @@ export default function Profile() {
       textAlign: 'center',
     },
     profilePic: {
-      width: 70, // Smaller size
-      height: 70, // Smaller size
-      borderRadius: 35, // Circular profile pic
+      width: 70,
+      height: 70,
+      borderRadius: 35,
     },
     columnRight: {
       flex: 1,
@@ -150,19 +157,26 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <View style={styles.table}>
-        {/* Row 1: User Name and Profile Icon */}
+        {/* Row 1: User Name + Pencil Icon and Profile Picture */}
         <View style={styles.row}>
-          <View style={styles.profileInfo}>
+          <TouchableOpacity
+            style={styles.profileInfo}
+            onPress={() => router.push('/Username')}
+          >
             <Text style={styles.userName}>
               {user ? user.displayName || user.email.split('@')[0] : 'Loading...'}
             </Text>
-          </View>
+            <Image
+              source={require('../assets/images/pencil.png')}
+              style={styles.pencilIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <View style={styles.columnRight}>
-            {/* Profile Icon as an image */}
             <TouchableOpacity onPress={handlePickImage}>
               <Image
-                source={image ? { uri: image } : require('../assets/images/profile-icon.png')} // Use the picked image or the default local image
-                style={styles.profilePic} // Apply the smaller profile picture size
+                source={image ? { uri: image } : require('../assets/images/profile-icon.png')}
+                style={styles.profilePic}
               />
             </TouchableOpacity>
           </View>
@@ -176,14 +190,13 @@ export default function Profile() {
         </View>
 
         {/* Row 3: Delete Account Button */}
-<View style={styles.row}>
-  <TouchableOpacity onPress={() => router.push('/Delete')} style={styles.editButton}>
-    <Text style={styles.editButtonText}>Delete Account</Text>
-  </TouchableOpacity>
-</View>
+        <View style={styles.row}>
+          <TouchableOpacity onPress={() => router.push('/Delete')} style={styles.editButton}>
+            <Text style={styles.editButtonText}>Delete Account</Text>
+          </TouchableOpacity>
+        </View>
 
-
-        {/* Row 3: Logout Button */}
+        {/* Row 4: Logout Button */}
         <View style={styles.row}>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Text style={styles.logoutButtonText}>Logout</Text>
