@@ -16,7 +16,7 @@ const HealthLog = () => {
         const savedData = await AsyncStorage.getItem('userData');
         if (savedData) {
           const parsedData = JSON.parse(savedData);
-          setCaloriesGoal(parsedData.calories);
+          setCaloriesGoal(Math.round(parsedData.calories)); // Rounded to nearest integer
         } else {
           Alert.alert('Error', 'No user data found.');
         }
@@ -40,16 +40,15 @@ const HealthLog = () => {
     setExerciseCalories(0);
   };
 
-  const caloriesRemaining = caloriesGoal - foodCalories + exerciseCalories;
+  const caloriesRemaining = Math.round(caloriesGoal - foodCalories + exerciseCalories); // Rounding remaining calories
 
   return (
     <View style={styles.container}>
-      {/* Calories Remaining Section */}
       <View style={styles.caloriesContainer}>
         <Text style={styles.caloriesText}>Calories Remaining:</Text>
         <Text style={styles.caloriesValue}>{caloriesRemaining} kcal</Text>
         <Text style={styles.caloriesDetail}>
-          Goal: {caloriesGoal} kcal - Food: {foodCalories} kcal + Exercise: {exerciseCalories} kcal
+          Goal: {Math.round(caloriesGoal)} kcal - Food: {Math.round(foodCalories)} kcal + Exercise: {Math.round(exerciseCalories)} kcal
         </Text>
       </View>
 
