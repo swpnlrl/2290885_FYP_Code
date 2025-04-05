@@ -1,69 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router'; // Only use this for navigation
+import { useRouter } from 'expo-router'; 
 import { auth } from './firebase'; 
 import { useNavigation } from '@react-navigation/native'; 
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function HomeScreen() {
-  const router = useRouter(); // Using useRouter for navigation
+// Create Tab Navigator
+const Tab = createBottomTabNavigator();
+
+function HomeScreen() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
-
+    // Ensure that header is hidden on this screen
     navigation.setOptions({ headerShown: false });
-    // Check if the user is logged in
+
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
     });
 
-    return () => unsubscribe(); // Cleanup subscription
+    return () => unsubscribe();
   }, []);
 
-  const handlehealClick = () => {
-    router.push('/Healthlog');
-  };
-
-  const handleProfileClick = () => {
-    router.push('/Profile');
-  };
-
-  const handletipClick = () => {
-    router.push('/Focus'); // Route to the Tips & Notes screen
-  };
-
-  const handlemoodClick = () => {
-    router.push('/Insights');
-  };
-
-  // Use this function to handle the button press and navigate to the Todo screen
-  const handleTodoClick = () => {
-    router.push('/To-Do List');  // Route to the todo.js page
-  };
-
-  const handletimeClick = () => {
-    router.push('/Timer');  // Route to the todo.js page
-  };
-
-  const handleRemClick = () => {
-    router.push('/Reminder');  // Route to the todo.js page
-  };
-
-  const handlecalmclick = () => {
-    router.push('/Calm');  // Route to the todo.js page
-  };
+  const handlehealClick = () => router.push('/Healthlog');
+  const handleProfileClick = () => router.push('/Profile');
+  const handletipClick = () => router.push('/Focus');
+  const handlemoodClick = () => router.push('/Insights');
+  const handleTodoClick = () => router.push('/To-Do List');
+  const handletimeClick = () => router.push('/Timer');
+  const handleRemClick = () => router.push('/Reminder');
+  const handlecalmclick = () => router.push('/Calm');
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        {/* Display "ChronoWell" title */}
         <Text style={styles.title}>ChronoWell</Text>
-
-        {/* Display Profile Icon */}
         <TouchableOpacity onPress={handleProfileClick}>
           <Image
-            source={require('/Users/swapnilaryal/FYPCode/ChronoWell/assets/images/profile-icon.png')} // Path to your image
+            source={require('/Users/swapnilaryal/FYPCode/ChronoWell/assets/images/profile-icon.png')}
             style={styles.profileIcon}
           />
         </TouchableOpacity>
@@ -76,40 +54,15 @@ export default function HomeScreen() {
             style={[styles.button, index === 0 ? styles.firstButton : null]}
             activeOpacity={0.7}
             onPress={() => {
-              if (text === 'To-Do List') {
-                handleTodoClick(); // This will navigate to the Todo screen
+              switch (text) {
+                case 'To-Do List': handleTodoClick(); break;
+                case 'Reminder': handleRemClick(); break;
+                case 'Timer': handletimeClick(); break;
+                case 'Calm': handlecalmclick(); break;
+                case 'Insights': handlemoodClick(); break;
+                case 'Focus': handletipClick(); break;
+                case 'Healthlog': handlehealClick(); break;
               }
-
-              if (text === 'Reminder') {
-                handleRemClick(); // This will navigate to the Todo screen
-              }
-       
-  if (text === 'Timer') {
-    handletimeClick(); // This will navigate to the Todo screen
-  }
-
-  if (text === 'Calm') {
-    handlecalmclick(); // This will navigate to the Todo screen
-  }
-
-
-  if (text === 'Insights') {
-    handlemoodClick(); // This will navigate to the Todo screen
-  }
-
-  if (text === 'Focus') {
-    handletipClick();  // This will navigate to the Todo screen
-  }
-
-
-  if (text === 'Healthlog') {
-    handlehealClick();  // This will navigate to the Todo screen
-  }
-
-
-
-
-              // handle other button clicks here
             }}
           >
             <LinearGradient colors={['#9B4D97', '#6A0DAD']} style={styles.buttonGradient}>
@@ -119,6 +72,46 @@ export default function HomeScreen() {
         ))}
       </View>
     </View>
+  );
+}
+
+function AboutScreen() {
+  return (
+    <View style={styles.container}>
+      <Text>About ChronoWell</Text>
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: { backgroundColor: '#6A0DAD' },
+        tabBarActiveTintColor: '#fff',
+        tabBarInactiveTintColor: '#ddd',
+        headerShown: false, // This hides the header for all screens inside this navigator
+      }}
+    >
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen} 
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
+        }} 
+      />
+      <Tab.Screen 
+        name="About" 
+        component={AboutScreen} 
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="information-circle" size={size} color={color} />
+          ),
+        }} 
+      />
+    </Tab.Navigator>
   );
 }
 
@@ -146,9 +139,9 @@ const styles = StyleSheet.create({
     color: '#6A0DAD',
   },
   profileIcon: {
-    width: 50, // Set the size of the profile icon
-    height: 50, // Set the size of the profile icon
-    borderRadius: 25, // Make it a circular image
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   divider: {
     height: 1,

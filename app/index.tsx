@@ -3,20 +3,24 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const navigation = useNavigation();
 
   useEffect(() => {
+    navigation.setOptions({ headerShown: false }); // Hide header
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigation]);
 
   useEffect(() => {
     if (!loading) {
