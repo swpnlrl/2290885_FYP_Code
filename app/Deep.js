@@ -95,8 +95,9 @@ export default function Deep() {
       <CountdownCircleTimer
         key={totalSeconds} 
         isPlaying={isRunning}
-        duration={totalSeconds}
-        colors="#00E676"
+        duration={phaseDuration}  // Set the duration for each inhale/exhale phase
+        colors={currentPhase === 'inhale' ? ['#00E676', '#ddd'] : ['#FF5722', '#ddd']} // Full circle color
+        trailColor="#ddd"
         onComplete={() => {
           handleComplete();  // Trigger actions when the timer finishes
           return [false, 0]; // Stop the timer when complete
