@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet, Modal } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +11,9 @@ export default function Deep() {
   const [isRunning, setIsRunning] = useState(false);
   const [totalSeconds, setTotalSeconds] = useState(0);
   const [sound, setSound] = useState();
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentPhase, setCurrentPhase] = useState('inhale'); // "inhale", "exhale"
+  const [phaseDuration] = useState(4); // 4 seconds per phase (inhale/exhale)
 
   const convertToSeconds = () => {
     return (parseInt(hrs) * 3600) + (parseInt(min) * 60) + parseInt(sec);
@@ -21,6 +23,7 @@ export default function Deep() {
     const seconds = convertToSeconds();
     setTotalSeconds(seconds);
     setIsRunning(true);
+    setCurrentPhase('inhale'); // Start with inhale phase
   };
 
   const pauseTimer = () => {
@@ -35,6 +38,7 @@ export default function Deep() {
     setTotalSeconds(0);
     setModalVisible(false); // Close modal on reset
     stopSound(); // Stop sound when resetting
+    setCurrentPhase('inhale'); // Reset phase to inhale
   };
 
   const stopSound = async () => {
@@ -58,16 +62,44 @@ export default function Deep() {
     }
   };
 
+  const handleComplete = () => {
+    // Handle what happens when the entire timer completes
+    handleEndSound(); // Trigger sound when timer ends (end of session)
+  };
+
+  useEffect(() => {
+    if (isRunning) {
+      const interval = setInterval(() => {
+        if (totalSeconds > 0) {
+          setTotalSeconds(prevTime => prevTime - 1);
+        } else {
+          handleComplete();
+          clearInterval(interval);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isRunning, totalSeconds]);
+
+  useEffect(() => {
+    if (totalSeconds % (phaseDuration * 2) === 0 && isRunning) {
+      setCurrentPhase('inhale');
+    } else if (totalSeconds % (phaseDuration * 2) === phaseDuration && isRunning) {
+      setCurrentPhase('exhale');
+    }
+  }, [totalSeconds, isRunning]);
+
   const renderTimer = () => {
     return (
       <CountdownCircleTimer
         key={totalSeconds} 
         isPlaying={isRunning}
         duration={totalSeconds}
-        colors={isRunning ? "#00E676" : "#D3D3D3"}
+        colors="#00E676"
         onComplete={() => {
-          handleEndSound();  // Trigger sound when countdown ends
-          return [true, totalSeconds];
+          handleComplete();  // Trigger actions when the timer finishes
+          return [false, 0]; // Stop the timer when complete
         }}
       >
         {({ remainingTime }) => {
@@ -78,6 +110,7 @@ export default function Deep() {
               <Text style={styles.timerText}>
                 {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
               </Text>
+              <Text style={styles.phaseText}>{currentPhase === 'inhale' ? 'Inhale' : 'Exhale'}</Text>
             </View>
           );
         }}
@@ -226,11 +259,18 @@ const styles = StyleSheet.create({
   },
   timerContainer: {
     marginVertical: 20,
+    alignItems: 'center',
   },
   timerText: {
     fontSize: 50,
     fontWeight: 'bold',
     color: '#000',
+  },
+  phaseText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color: '#FF5722', // Color for inhale/exhale phase
   },
   buttonContainer: {
     flexDirection: 'row',
