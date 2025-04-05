@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router'; 
 import { auth } from './firebase'; 
@@ -76,9 +76,54 @@ function HomeScreen() {
 }
 
 function AboutScreen() {
+  const fadeAnim = new Animated.Value(0);
+
+  useEffect(() => {
+    // Fade in animation for About screen text
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
   return (
-    <View style={styles.container}>
-      <Text>About ChronoWell</Text>
+    <View style={styles.aboutContainer}>
+      <View style={styles.aboutBox}>
+        <Text style={styles.aboutTitle}>About</Text>
+        <Animated.Text style={[styles.aboutText, { opacity: fadeAnim }]}>
+  <Text style={{ fontWeight: 'bold', fontFamily: 'Helvetica' }}>ChronoWell</Text> is an holistic application designed to help university students
+  manage their time effectively while maintaining a balance between their academics
+  and overall health. Basic features of the app are listed below :
+
+</Animated.Text>
+
+<View style={styles.pointsContainer}>
+  <Animated.Text style={[styles.aboutTextBold, { opacity: fadeAnim }]}>
+    <Text style={{ fontWeight: 'bold' }}>Healthlog</Text> - Food Logging to meet the required calories in a day
+  </Animated.Text>
+  <Animated.Text style={[styles.aboutTextBold, { opacity: fadeAnim }]}>
+    <Text style={{ fontWeight: 'bold' }}>To-Do List</Text> - Task List with Task Prioritization to manage academic and personal tasks
+  </Animated.Text>
+  <Animated.Text style={[styles.aboutTextBold, { opacity: fadeAnim }]}>
+    <Text style={{ fontWeight: 'bold' }}>Reminder</Text> - Email Notifications about their work to keep users on track 
+  </Animated.Text>
+  <Animated.Text style={[styles.aboutTextBold, { opacity: fadeAnim }]}>
+    <Text style={{ fontWeight: 'bold' }}>Timer</Text> - To set the time in their everyday task
+  </Animated.Text>
+  <Animated.Text style={[styles.aboutTextBold, { opacity: fadeAnim }]}>
+    <Text style={{ fontWeight: 'bold' }}>Insights</Text> - Mood and Stress Tracker to monitor mental health and well-being
+  </Animated.Text>
+  <Animated.Text style={[styles.aboutTextBold, { opacity: fadeAnim }]}>
+    <Text style={{ fontWeight: 'bold' }}>Focus</Text> - Tips and Notes to keep users motivated
+  </Animated.Text>
+  <Animated.Text style={[styles.aboutTextBold, { opacity: fadeAnim }]}>
+    <Text style={{ fontWeight: 'bold' }}>Calm</Text> - Deep Breathing and Meditation to promote relaxation and mental clarity
+  </Animated.Text>
+</View>
+
+
+      </View>
     </View>
   );
 }
@@ -137,6 +182,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#6A0DAD',
+    fontFamily: 'Roboto', // Title font
   },
   profileIcon: {
     width: 50,
@@ -170,5 +216,58 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+
+  // About screen styles
+  aboutContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
+    padding: 20,
+  },
+  aboutBox: {
+    width: '90%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 15,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  aboutTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#6A0DAD',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontFamily: 'Roboto', // Title font
+  },
+  aboutText: {
+    fontSize: 18, // Increased from 16 to 18
+    lineHeight: 28, // Slightly more line height for better readability
+    color: '#333',
+    marginBottom: 8,
+    textAlign: 'justify',
+    fontFamily: 'Avenir'
+    // Changed font
+    
+  },
+  
+  
+  aboutTextBold: {
+    fontSize: 14, // Smaller size
+    lineHeight: 25,
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'justify', // Keeps it clean
+    fontFamily: 'palatino', // New font
+    fontWeight: 'normal',  // Optional: can set to '500' if you still want a little emphasis
+  },
+  
+  pointsContainer: {
+    marginTop: 20,
   },
 });
