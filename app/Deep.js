@@ -98,6 +98,7 @@ export default function Deep() {
         duration={phaseDuration}  // Set the duration for each inhale/exhale phase
         colors={currentPhase === 'inhale' ? ['#00E676', '#ddd'] : ['#FF5722', '#ddd']} // Full circle color
         trailColor="#ddd"
+        rotation="counterclockwise" // Make sure the timer rotates counterclockwise
         onComplete={() => {
           handleComplete();  // Trigger actions when the timer finishes
           return [false, 0]; // Stop the timer when complete
