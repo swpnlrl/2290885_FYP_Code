@@ -24,7 +24,8 @@ const HealthLog = () => {
   });
   const [currentMeal, setCurrentMeal] = useState('');
   const [showFoodSearch, setShowFoodSearch] = useState(false);
-  const [showCongratulationModal, setShowCongratulationModal] = useState(false); // New state for modal
+  const [showCongratulationModal, setShowCongratulationModal] = useState(false);
+  const [showCredentialModal, setShowCredentialModal] = useState(false);
 
   const router = useRouter();
 
@@ -88,13 +89,15 @@ const HealthLog = () => {
     saveExerciseCalories();
   }, [exerciseCalories]);
 
-  // Recalculate calories remaining directly in render
   const caloriesRemaining = Math.round(caloriesGoal - foodCalories + exerciseCalories);
 
-  // Check if the goal is met and show the modal, only if the calories goal is reached and some data exists
   useEffect(() => {
     if (caloriesRemaining <= 0 && foodCalories > 0 && exerciseCalories > 0) {
       setShowCongratulationModal(true);
+    }
+
+    if (caloriesGoal === 2000 && foodCalories === 0 && exerciseCalories === 0) {
+      setShowCredentialModal(true);
     }
   }, [caloriesRemaining, foodCalories, exerciseCalories]);
 
@@ -136,6 +139,11 @@ const HealthLog = () => {
 
   const handleCloseCongratulationModal = () => {
     setShowCongratulationModal(false);
+  };
+
+  const handleCloseCredentialModal = () => {
+    setShowCredentialModal(false);
+    router.push('/Edit');
   };
 
   return (
@@ -224,6 +232,25 @@ const HealthLog = () => {
                 </Text>
                 <TouchableOpacity onPress={handleCloseCongratulationModal}>
                   <Text style={styles.closeModalText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          {/* Credential Modal */}
+          <Modal
+            transparent={true}
+            animationType="fade"
+            visible={showCredentialModal}
+            onRequestClose={handleCloseCredentialModal}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.congratulationText}>
+                  ⚠️ Please fill in your credentials!
+                </Text>
+                <TouchableOpacity onPress={handleCloseCredentialModal}>
+                  <Text style={styles.closeModalText}>Go to Edit</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -334,24 +361,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
+    backgroundColor: '#FFF',
+    padding: 25,
     borderRadius: 10,
     alignItems: 'center',
+    marginHorizontal: 20,
   },
   congratulationText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#6A0DAD',
-    marginBottom: 10,
+    marginBottom: 15,
+    textAlign: 'center',
   },
   closeModalText: {
-    fontSize: 16,
     color: '#6A0DAD',
-    marginTop: 10,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
