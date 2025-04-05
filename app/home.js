@@ -27,7 +27,7 @@ function HomeScreen() {
   }, []);
 
   const handlehealClick = () => router.push('/Healthlog');
-  const handleProfileClick = () => router.push('/Profile');
+  const handleProfileClick = () => router.push('/profile');
   const handletipClick = () => router.push('/Focus');
   const handlemoodClick = () => router.push('/Insights');
   const handleTodoClick = () => router.push('/To-Do List');
