@@ -20,7 +20,7 @@ export default function LoginScreen() {
   }, [navigation]);
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: '176747721312-af3mtfq800sn6g4ad4hdo67rg0622k3e.apps.googleusercontent.com',
+    clientId: '176747721312-b9p6m343eb5vmf48ppat0792777v79f9.apps.googleusercontent.com',
     iosClientId: '176747721312-b9p6m343eb5vmf48ppat0792777v79f9.apps.googleusercontent.com',
   });
 
